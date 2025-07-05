@@ -2,2062 +2,822 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Neon Roll</title>
-    
-    <!-- Styles -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    
-    <!-- Scripts -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 Neon Casino - Epic Crypto Gaming</title>
     <style>
-        :root {
-            --bg-primary: #0D061A; --bg-secondary: #1A1033;
-            --bg-glass: rgba(26, 16, 51, 0.5); --border-glass: rgba(123, 82, 255, 0.2);
-            --accent-cyan: #00FFFF; --accent-pink: #FF00C7; --accent-purple: #7B52FF;
-            --text-primary: #F0F2FF; --text-secondary: #A9A4C4;
-            --neon-red: #FF1B55; --neon-blue: #00BFFF; --neon-green: #00FF7F; --neon-yellow: #FFD700;
-            --safe-area-inset-top: env(safe-area-inset-top);
-            --safe-area-inset-bottom: env(safe-area-inset-bottom);
-        }
-        
         * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        @keyframes background-pan { 
-            0% { background-position: 0% 50%; } 
-            50% { background-position: 100% 50%; } 
-            100% { background-position: 0% 50%; } 
-        }
-        
-        body {
-            font-family: 'Roboto', sans-serif; 
-            background-color: var(--bg-primary); 
-            color: var(--text-primary);
-            background: linear-gradient(300deg, var(--bg-primary), var(--bg-secondary), var(--bg-primary));
-            background-size: 200% 200%; 
-            animation: background-pan 30s ease infinite;
-            overscroll-behavior: none; 
-            -webkit-user-select: none; 
-            user-select: none;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
             overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
         }
-        
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        
-        .glassmorphism {
-            background: var(--bg-glass); 
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
         }
-        
-        .text-glow { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); }
-        
-        /* Optimized Roller */
-        #roller-container {
-            perspective: 1000px;
-            background: radial-gradient(ellipse at center, rgba(123, 82, 255, 0.15) 0%, transparent 70%);
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff0080, #00ff80, #0080ff, #ff8000);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .balance {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00ff80;
+            text-shadow: 0 0 10px #00ff80;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            border-radius: 16px;
-            contain: layout style paint;
+            cursor: pointer;
         }
-        
-        #roller-container::before {
-            content: ''; 
-            position: absolute; 
-            top: -10px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 4px; 
-            height: calc(100% + 20px); 
-            background: linear-gradient(to bottom, transparent, var(--accent-cyan), transparent);
-            box-shadow: 0 0 15px var(--accent-cyan);
-            z-index: 10; 
-            transition: all 0.3s;
+
+        .game-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: #00ff80;
+            box-shadow: 0 20px 40px rgba(0, 255, 128, 0.3);
         }
-        
-        #roller { 
-            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            transform-style: preserve-3d; 
-            display: flex;
-            will-change: transform;
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
             height: 100%;
-            align-items: center;
-            contain: layout style paint;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
         }
-        
-        .roller-item {
-            flex-shrink: 0; 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 10px;
-            transform: rotateY(10deg); 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255,255,255,0.1);
-            transition: transform 0.2s ease;
-            margin: 0 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #00ff80;
+        }
+
+        .game-description {
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .neon-button {
+            background: linear-gradient(45deg, #ff0080, #00ff80);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: bold;
             color: white;
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
-            position: relative;
-            contain: layout style paint;
-        }
-        
-        .neon-button {
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             position: relative;
             overflow: hidden;
-            contain: layout style paint;
         }
-        
-        .neon-button:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed; 
+
+        .neon-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.7);
         }
-        
-        .neon-button::before {
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0;
-            border-radius: inherit; 
-            background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan));
-            opacity: 0; 
-            transition: opacity 0.2s; 
-            z-index: -1;
+
+        .crypto-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
         }
-        
-        .neon-button:hover:not(:disabled)::before { opacity: 0.1; }
-        .neon-button:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
-        
-        .bet-btn { 
-            font-size: 1.2rem; 
-            font-weight: 900; 
-            color: white; 
-            text-shadow: 0 0 5px rgba(0,0,0,0.6); 
-            border-radius: 12px; 
-            padding: 12px; 
-            transition: all 0.2s ease-in-out;
+
+        .crypto-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .crypto-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .crypto-card:hover {
+            transform: scale(1.05);
+            border-color: #00ff80;
+            box-shadow: 0 10px 20px rgba(0, 255, 128, 0.3);
+        }
+
+        .referral-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 0, 128, 0.3);
+        }
+
+        .referral-link {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #00ff80;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+            color: #00ff80;
+        }
+
+        .game-interface {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .roller-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            margin: 30px 0;
+            perspective: 1000px;
+        }
+
+        .roller {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 20px;
             position: relative;
-            overflow: hidden;
-            contain: layout style paint;
+            transform-style: preserve-3d;
+            animation: spin 3s linear infinite;
         }
-        
-        .bet-btn::after {
-            content: '';
+
+        .roller.red { background: linear-gradient(45deg, #ff1b55, #ff6b8a); }
+        .roller.blue { background: linear-gradient(45deg, #00bfff, #66d9ff); }
+        .roller.green { background: linear-gradient(45deg, #00ff7f, #66ffaa); }
+        .roller.yellow { background: linear-gradient(45deg, #ffd700, #ffed66); }
+
+        .bet-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .bet-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #00ff80;
+            border-radius: 15px;
+            padding: 15px 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .bet-button:hover {
+            background: #00ff80;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .result-display {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #00ff80;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .modal-content {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #00ff80;
+            max-width: 500px;
+            width: 90%;
         }
-        
-        .bet-btn:active::after {
-            width: 100px;
-            height: 100px;
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
         }
-        
-        .bet-btn-red { 
-            background: linear-gradient(145deg, #e60036, #ff3366); 
-            box-shadow: 0 0 15px var(--neon-red); 
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        .bet-btn-blue { 
-            background: linear-gradient(145deg, #00a3e6, #33c6ff); 
-            box-shadow: 0 0 15px var(--neon-blue); 
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
         }
-        .bet-btn-green { 
-            background: linear-gradient(145deg, #00e673, #33ff9c); 
-            box-shadow: 0 0 15px var(--neon-green); 
+
+        @keyframes spin {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
         }
-        .bet-btn-yellow { 
-            background: linear-gradient(145deg, #e6c300, #ffdc33); 
-            box-shadow: 0 0 15px var(--neon-yellow); 
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
         }
-        
-        .nav-item { 
-            flex: 1; 
-            text-align: center; 
-            padding: 10px 6px; 
-            color: var(--text-secondary); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 3px;
-            transition: all 0.2s ease;
-            border-radius: 10px;
-            margin: 0 1px;
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 255, 0.3);
         }
-        
-        .nav-item.active { 
-            color: var(--accent-cyan); 
-            background: rgba(0, 255, 255, 0.1);
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff80;
+            margin-bottom: 5px;
         }
-        
-        .nav-item.active .nav-icon { 
-            transform: translateY(-2px) scale(1.1); 
-            text-shadow: 0 0 10px var(--accent-cyan); 
-        }
-        
-        .nav-icon { 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            font-size: 18px; 
-        }
-        
-        .nav-text { 
-            font-size: 9px; 
-            font-weight: 600; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .progress-bar-bg { 
-            background-color: rgba(0,0,0,0.4); 
-            border-radius: 99px; 
-            overflow: hidden; 
-        }
-        
-        .progress-bar-fill { 
-            background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan)); 
-            height: 100%; 
-            border-radius: 99px; 
-            transition: width 0.5s ease; 
-        }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        #particle-canvas { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            z-index: -1; 
-            width: 100%; 
-            height: 100%; 
-            pointer-events: none;
-        }
-        
-        @keyframes pulse { 
-            0%, 100% { 
-                transform: scale(1); 
-                box-shadow: 0 0 15px var(--shadow-color); 
-            } 
-            50% { 
-                transform: scale(1.05); 
-                box-shadow: 0 0 25px var(--shadow-color); 
-            } 
-        }
-        
-        .pulse-anim { animation: pulse 1.5s ease-in-out infinite; }
-        
-        @keyframes win-glow { 
-            from { box-shadow: 0 0 60px -10px var(--glow-color); } 
-            to { box-shadow: 0 0 60px 20px transparent; } 
-        }
-        
-        .win-glow-effect { 
-            position: fixed; 
-            top:0; 
-            left:0; 
-            width:100%; 
-            height:100%; 
-            z-index: 999; 
-            pointer-events:none; 
-            animation: win-glow 1s ease-out; 
-        }
-        
-        .bet-control-btn { 
-            background: var(--bg-secondary); 
-            color: var(--text-secondary); 
-            font-weight: bold; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            transition: all 0.2s;
-            border: 1px solid var(--border-glass);
-        }
-        
-        .bet-control-btn:hover { 
-            background: var(--accent-purple); 
-            color: white; 
-        }
-        
-        .my-bet-glow {
-            border-radius: 8px;
-            box-shadow: 0 0 12px var(--accent-cyan);
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid var(--accent-cyan);
-        }
-        
-        @keyframes win-pulse-effect {
-            0% { transform: scale(1) rotateY(10deg); }
-            50% { transform: scale(1.15) rotateY(10deg); }
-            100% { transform: scale(1) rotateY(10deg); }
-        }
-        
-        .win-pulse {
-            animation: win-pulse-effect 0.8s ease-in-out;
-            box-shadow: 0 0 25px var(--accent-cyan) !important;
-        }
-        
-        @keyframes flash-red-bg {
-            0%, 100% { 
-                background-color: transparent; 
-                border-color: var(--accent-purple); 
-            }
-            50% { 
-                background-color: rgba(255, 27, 85, 0.3); 
-                border-color: var(--neon-red); 
-            }
-        }
-        
-        .flash-red {
-            animation: flash-red-bg 0.5s ease-in-out;
-        }
-        
-        #app {
-            padding-top: var(--safe-area-inset-top);
-            padding-bottom: var(--safe-area-inset-bottom);
-        }
-        
-        .user-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent-cyan);
-        }
-        
-        .loading-spinner {
-            border: 2px solid var(--bg-secondary);
-            border-top: 2px solid var(--accent-cyan);
-            border-radius: 50%;
+
+        .loading {
+            display: inline-block;
             width: 20px;
             height: 20px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff80;
+            animation: spin 1s ease-in-out infinite;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 2rem; }
+            .user-info { flex-direction: column; gap: 10px; }
+            .games-grid { grid-template-columns: 1fr; }
+            .bet-buttons { flex-direction: column; }
+            .roller-container { height: 150px; }
+            .roller { width: 80px; height: 80px; }
         }
-        
-        .task-completed {
-            opacity: 0.6;
-            background: rgba(0, 255, 127, 0.1);
-            border: 1px solid var(--neon-green);
-        }
-        
-        .welcome-bonus {
-            background: linear-gradient(45deg, var(--neon-green), var(--accent-cyan));
-            color: white;
-            padding: 12px;
-            border-radius: 12px;
+
+        .jackpot-banner {
+            background: linear-gradient(45deg, #ff0080, #00ff80, #0080ff);
+            background-size: 400% 400%;
+            animation: rainbow 3s ease-in-out infinite;
             text-align: center;
-            margin: 8px 0;
-            font-weight: bold;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        .connection-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            padding: 6px 10px;
+            padding: 20px;
+            margin: 20px 0;
             border-radius: 15px;
-            font-size: 11px;
+            font-size: 1.5rem;
             font-weight: bold;
-            transition: all 0.3s;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
         }
-        
-        .connection-online {
-            background: var(--neon-green);
-            color: white;
-        }
-        
-        .connection-offline {
-            background: var(--neon-red);
-            color: white;
-        }
-        
-        /* Custom Keyboard */
-        .custom-keyboard {
-            background: var(--bg-glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 8px;
-        }
-        
-        .keyboard-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            justify-content: center;
-        }
-        
-        .keyboard-key {
-            flex: 1;
-            max-width: 60px;
-            height: 50px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-glass);
-            border-radius: 8px;
-            color: white;
-            font-size: 18px;
+
+        .vip-badge {
+            background: linear-gradient(45deg, #ffd700, #ffed66);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .task-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .task-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            cursor: pointer;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        .keyboard-key:hover {
-            background: var(--accent-purple);
-            transform: translateY(-2px);
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 5px 0;
         }
-        
-        .keyboard-key:active {
-            transform: translateY(0) scale(0.95);
-        }
-        
-        .keyboard-key.wide {
-            flex: 2;
-            max-width: 128px;
-        }
-        
-        /* Crypto Cards */
-        .crypto-card {
-            transition: all 0.2s ease;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-        
-        .crypto-card:hover {
-            border-color: var(--accent-cyan);
-            transform: translateY(-2px);
-        }
-        
-        .crypto-card:active {
-            transform: translateY(0) scale(0.98);
-        }
-        
-        /* Performance optimizations */
-        .screen {
-            contain: layout style paint;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .slide-in-up {
-            animation: slideInUp 0.3s ease-out;
-        }
-        
-        @keyframes slideInUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        /* Reduce motion for better performance */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+
+        .progress-fill {
+            background: linear-gradient(45deg, #00ff80, #00bfff);
+            height: 100%;
+            transition: width 0.5s ease;
         }
     </style>
 </head>
-<body class="overflow-hidden">
-    <canvas id="particle-canvas"></canvas>
+<body>
+    <div class="bg-particles"></div>
     
-    <!-- Connection Status -->
-    <div id="connection-status" class="connection-status connection-online">
-        <i class="fas fa-wifi"></i> Online
-    </div>
-    
-    <!-- Deposit Details Screen -->
-    <div id="deposit-details-screen" class="hidden absolute inset-0 bg-bg-primary/90 backdrop-blur-md z-20 p-4 flex flex-col items-center justify-center">
-        <div class="glassmorphism p-6 rounded-2xl text-center space-y-4 w-full max-w-sm slide-in-up">
-            <h2 id="deposit-details-title" class="font-orbitron text-xl font-bold text-glow"></h2>
-            <p class="text-sm text-text-secondary">Send any amount to this address. Balance will be credited automatically.</p>
-            <div id="qr-code" class="mx-auto bg-white p-3 rounded-lg w-48 h-48 flex items-center justify-center"></div>
-            <div class="bg-black/30 p-3 rounded-lg">
-                <input id="wallet-address" type="text" readonly class="w-full bg-transparent text-center text-cyan-300 font-mono text-sm">
-            </div>
-            <button id="copy-wallet-btn" class="w-full neon-button bg-gradient-to-r from-green-500 to-cyan-500 text-white p-3 rounded-xl font-bold text-base shadow-lg shadow-cyan-500/30">
-                <i class="fas fa-copy"></i> COPY WALLET
-            </button>
-            <p id="exchange-rate" class="text-sm font-bold text-accent-cyan"></p>
-            <button id="i-have-paid-btn" class="w-full neon-button bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-xl font-bold text-base shadow-lg shadow-pink-500/30 mt-2">
-                <i class="fas fa-check"></i> I HAVE PAID
-            </button>
-            <button id="back-to-deposit" class="w-full text-text-secondary mt-2 text-sm hover:text-white transition">
-                <i class="fas fa-arrow-left"></i> Cancel
-            </button>
-        </div>
-    </div>
-    
-    <!-- Custom Keyboard Modal -->
-    <div id="keyboard-modal" class="hidden fixed inset-0 z-30 flex items-end justify-center bg-black/50 backdrop-blur-sm">
-        <div class="w-full max-w-md p-4 slide-in-up">
-            <div class="custom-keyboard">
-                <div class="text-center mb-4">
-                    <p class="text-sm text-text-secondary">Enter Bet Amount</p>
-                    <div id="keyboard-display" class="text-2xl font-orbitron font-bold text-white mt-2 p-3 bg-black/20 rounded-lg">0</div>
-                </div>
-                <div class="keyboard-row">
-                    <button class="keyboard-key" data-key="1">1</button>
-                    <button class="keyboard-key" data-key="2">2</button>
-                    <button class="keyboard-key" data-key="3">3</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="keyboard-key" data-key="4">4</button>
-                    <button class="keyboard-key" data-key="5">5</button>
-                    <button class="keyboard-key" data-key="6">6</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="keyboard-key" data-key="7">7</button>
-                    <button class="keyboard-key" data-key="8">8</button>
-                    <button class="keyboard-key" data-key="9">9</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="keyboard-key" data-key=".">.</button>
-                    <button class="keyboard-key" data-key="0">0</button>
-                    <button class="keyboard-key" data-key="backspace"><i class="fas fa-backspace"></i></button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="keyboard-key wide" data-key="clear">Clear</button>
-                    <button class="keyboard-key wide" data-key="confirm">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="app" class="relative z-10 h-screen w-screen flex flex-col max-w-md mx-auto">
-        <!-- Header -->
-        <header class="flex items-center justify-between p-4 shrink-0">
-            <div class="flex items-center gap-3">
-                <div id="user-avatar-container" class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-cyan-400 flex items-center justify-center border-2 border-cyan-300/50 overflow-hidden">
-                    <img id="user-avatar" src="/placeholder.svg" alt="Avatar" class="hidden w-full h-full object-cover user-avatar">
-                    <i id="user-avatar-placeholder" class="fas fa-user-astronaut text-2xl text-white"></i>
-                </div>
-                <div>
-                    <p id="username" class="font-orbitron font-bold text-base">Loading...</p>
-                    <p id="user-id" class="text-xs text-text-secondary">ID: Loading...</p>
-                </div>
-            </div>
-            <div id="balance-container" class="flex items-center gap-2 glassmorphism px-4 py-2 rounded-xl">
-                <i class="fas fa-coins text-yellow-300 text-xl"></i>
-                <span id="balance" class="font-orbitron font-bold text-lg">0.00</span>
-                <span class="font-orbitron text-sm font-semibold text-yellow-200">EC</span>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="flex-grow overflow-y-auto no-scrollbar">
-            <div id="main-content-wrapper" class="relative transition-filter duration-300">
-                <!-- Play Screen -->
-                <div id="play-screen" class="screen p-4 space-y-4">
-                    <div id="welcome-bonus-container" class="hidden">
-                        <div class="welcome-bonus">
-                            <i class="fas fa-gift"></i> Welcome Bonus: +20 EC Added!
-                        </div>
-                    </div>
-                    
-                    <div class="glassmorphism p-4 rounded-2xl space-y-4">
-                        <div id="timer-container" class="text-center">
-                            <p id="timer-status" class="font-orbitron text-lg font-bold text-glow uppercase tracking-widest">Placing Bets</p>
-                            <p id="timer" class="font-orbitron text-5xl font-black tracking-widest">00:10</p>
-                        </div>
-                        <div id="roller-container" class="w-full h-20 overflow-hidden relative">
-                            <div id="roller" class="flex absolute top-0 left-0 h-full items-center"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <h3 class="font-orbitron font-bold text-base">Last 5:</h3>
-                            <div id="history" class="flex gap-2"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="glassmorphism p-4 rounded-2xl h-48 overflow-y-auto no-scrollbar">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-orbitron font-bold text-lg">Players & Bets</h3>
-                            <span class="text-sm text-text-secondary flex items-center gap-1">
-                                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                Live Feed
-                            </span>
-                        </div>
-                        <div id="players-bets" class="space-y-2"></div>
-                    </div>
-                </div>
-
-                <!-- Friends Screen -->
-                <div id="friends-screen" class="screen hidden p-4 space-y-4">
-                     <div class="glassmorphism p-4 rounded-2xl text-center">
-                         <h2 class="font-orbitron text-2xl font-bold mb-2 text-glow">Referral Program</h2>
-                         <p class="text-text-secondary text-sm">Invite friends and get a percentage of all their bets, up to the 3rd level.</p>
-                     </div>
-                     <div class="glassmorphism p-4 rounded-2xl">
-                         <div class="grid grid-cols-3 gap-2 text-center mb-4">
-                             <div class="p-3 bg-green-500/20 rounded-lg">
-                                 <h4 class="font-bold">1st level</h4>
-                                 <p class="text-2xl font-orbitron text-green-400">5%</p>
-                             </div>
-                             <div class="p-3 bg-cyan-500/20 rounded-lg">
-                                 <h4 class="font-bold">2nd level</h4>
-                                 <p class="text-2xl font-orbitron text-cyan-400">1%</p>
-                             </div>
-                             <div class="p-3 bg-purple-500/20 rounded-lg">
-                                 <h4 class="font-bold">3rd level</h4>
-                                 <p class="text-2xl font-orbitron text-purple-400">1%</p>
-                             </div>
-                         </div>
-                     </div>
-                     <div class="glassmorphism p-4 rounded-2xl">
-                         <h3 class="font-orbitron font-bold text-lg mb-3 text-center">Your Referrals</h3>
-                         <div id="referral-stats" class="grid grid-cols-3 gap-3 text-center"></div>
-                     </div>
-                     <div class="glassmorphism p-4 rounded-2xl space-y-2">
-                         <p class="text-center text-sm text-text-secondary">Your referral link:</p>
-                         <input id="referral-link" type="text" readonly value="Loading..." class="w-full bg-black/20 p-3 rounded-lg text-center text-cyan-300 font-mono text-sm">
-                         <button id="copy-referral-btn" class="w-full mt-2 neon-button bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-2 rounded-lg text-sm">
-                             <i class="fas fa-copy"></i> Copy Link
-                         </button>
-                     </div>
-                     <button id="share-referral-btn" class="w-full neon-button bg-gradient-to-r from-green-500 to-cyan-500 text-white p-4 rounded-xl font-bold text-lg shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2">
-                         <i class="fas fa-share-alt"></i> ✨ SHARE LINK
-                     </button>
-                </div>
-                
-                <!-- Deposit Screen -->
-                <div id="deposit-screen" class="screen hidden p-4 space-y-4">
-                     <div class="glassmorphism p-4 rounded-2xl text-center">
-                         <h2 class="font-orbitron text-2xl font-bold text-glow">Top Up Balance</h2>
-                         <p class="text-sm text-text-secondary mt-2">Choose your preferred cryptocurrency</p>
-                     </div>
-                     <div id="deposit-options" class="space-y-3"></div>
-                </div>
-                
-                <!-- Withdraw Screen -->
-                <div id="withdraw-screen" class="screen hidden p-4 space-y-4">
-                     <div class="glassmorphism p-4 rounded-2xl text-center mb-4">
-                         <h2 class="font-orbitron text-2xl font-bold text-glow">Withdrawal</h2>
-                         <p class="text-sm text-text-secondary mt-2">Withdraw your earnings securely</p>
-                     </div>
-                     <div id="withdraw-options" class="space-y-3"></div>
-                     <div class="glassmorphism p-4 rounded-2xl space-y-4">
-                         <div>
-                             <label for="withdraw-currency" class="text-sm text-text-secondary">Currency</label>
-                             <select id="withdraw-currency" class="w-full bg-black/20 p-3 rounded-lg mt-1 border border-border-glass focus:outline-none focus:border-accent-cyan text-white"></select>
-                         </div>
-                         <div>
-                             <label for="withdraw-address" class="text-sm text-text-secondary">Wallet Address</label>
-                             <input id="withdraw-address" type="text" placeholder="Enter your wallet address" class="w-full bg-black/20 p-3 rounded-lg mt-1 border border-border-glass focus:outline-none focus:border-accent-cyan text-white">
-                         </div>
-                         <div>
-                             <label for="withdraw-amount" class="text-sm text-text-secondary">Amount (EC)</label>
-                             <input id="withdraw-amount" type="number" placeholder="0.00" class="w-full bg-black/20 p-3 rounded-lg mt-1 border border-border-glass focus:outline-none focus:border-accent-cyan text-white">
-                         </div>
-                         <div class="text-xs text-text-secondary bg-black/20 p-3 rounded-lg">
-                             <p><i class="fas fa-info-circle text-cyan-400"></i> Minimum withdrawal: <span id="min-withdraw-amount">50</span> EC</p>
-                             <p><i class="fas fa-clock text-cyan-400"></i> Processing time: 1-24 hours</p>
-                             <p><i class="fas fa-shield-alt text-cyan-400"></i> All transactions are secured</p>
-                         </div>
-                         <button id="withdraw-btn" class="w-full neon-button bg-gradient-to-r from-pink-600 to-purple-600 text-white p-4 rounded-xl font-bold text-lg">
-                             <i class="fas fa-paper-plane"></i> WITHDRAW
-                         </button>
-                     </div>
-                </div>
-
-                <!-- Tasks Screen -->
-                <div id="tasks-screen" class="screen hidden p-4 space-y-4">
-                     <div class="glassmorphism p-4 rounded-2xl text-center flex justify-between items-center">
-                         <div>
-                             <h2 class="font-orbitron text-2xl font-bold text-glow">Daily Tasks</h2>
-                             <p class="text-sm text-text-secondary">Complete tasks to earn EC</p>
-                         </div>
-                         <button id="generate-tasks-btn" class="neon-button bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
-                             <i class="fas fa-sync-alt"></i> New
-                         </button>
-                     </div>
-                     <div id="tasks-list" class="space-y-3"></div>
-                </div>
-            </div>
-        </main>
-        
-        <!-- Modal -->
-        <div id="modal-container" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-            <div id="modal-content" class="text-center p-8 rounded-2xl border-2 transition-all duration-300 transform scale-95 opacity-0 glassmorphism max-w-sm w-full">
-                <p id="modal-title" class="text-2xl font-orbitron font-black mb-2"></p>
-                <p id="modal-text" class="text-base text-text-secondary"></p>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎰 NEON CASINO</div>
+            <div style="font-size: 1.2rem; margin-top: 10px; opacity: 0.8;">
+                Ultimate Crypto Gaming Experience
             </div>
         </div>
 
-        <!-- Betting Controls -->
-        <footer id="betting-controls" class="p-4 glassmorphism rounded-t-3xl space-y-3 shrink-0">
-            <div class="flex justify-between items-center gap-2">
-                <button data-action="min" class="bet-control-btn">Min</button>
-                <button data-action="half" class="bet-control-btn">1/2</button>
-                <button id="bet-amount-btn" class="w-full text-center bg-transparent border-b-2 border-accent-purple/50 text-2xl font-orbitron font-bold focus:outline-none focus:border-accent-purple transition text-white p-2">
-                    5.00
-                </button>
-                <button data-action="double" class="bet-control-btn">x2</button>
-                <button data-action="max" class="bet-control-btn">Max</button>
+        <div class="user-info">
+            <div>
+                <span>Welcome, <span id="username">Player</span></span>
+                <span id="vip-badge" class="vip-badge">BRONZE</span>
             </div>
-            <div class="grid grid-cols-4 gap-3">
-                <button data-color="red" class="bet-btn bet-btn-red">x2</button>
-                <button data-color="blue" class="bet-btn bet-btn-blue">x2</button>
-                <button data-color="green" class="bet-btn bet-btn-green">x5</button>
-                <button data-color="yellow" class="bet-btn bet-btn-yellow">x45</button>
+            <div class="balance">💰 <span id="balance">0.00</span> EC</div>
+        </div>
+
+        <div class="jackpot-banner">
+            🎰 MEGA JACKPOT: <span id="jackpot-amount">50,000</span> EC 🎰
+        </div>
+
+        <div class="games-grid">
+            <div class="game-card" onclick="showGame('neon-roll')">
+                <div class="game-title">🎰 NEON ROLL</div>
+                <div class="game-description">
+                    Choose your color and watch the neon rollers spin! 
+                    Red & Blue: 2x | Green: 5x | Yellow: 45x
+                </div>
+                <button class="neon-button">PLAY NOW</button>
             </div>
-        </footer>
-        
-        <!-- Navigation -->
-        <nav id="navigation-bar" class="flex justify-around p-2 bg-[#140f28] shrink-0 border-t border-border-glass">
-            <button data-screen="friends-screen" class="nav-item">
-                <i class="fas fa-users nav-icon"></i>
-                <span class="nav-text">Friends</span>
+
+            <div class="game-card" onclick="showGame('neon-dice')">
+                <div class="game-title">🎲 NEON DICE</div>
+                <div class="game-description">
+                    Predict the dice roll (1-100). 
+                    Under/Over 50: 1.98x | Exactly 50: 99x
+                </div>
+                <button class="neon-button">ROLL DICE</button>
+            </div>
+
+            <div class="game-card" onclick="showGame('neon-slots')">
+                <div class="game-title">🎰 NEON SLOTS</div>
+                <div class="game-description">
+                    Match 3 symbols to win big! 
+                    Cherry: 2x | Diamond: 25x | Jackpot: 100x
+                </div>
+                <button class="neon-button">SPIN SLOTS</button>
+            </div>
+
+            <div class="game-card" onclick="showGame('neon-crash')">
+                <div class="game-title">📈 NEON CRASH</div>
+                <div class="game-description">
+                    Watch multiplier rise, cash out before crash! 
+                    Higher risk = Higher reward
+                </div>
+                <button class="neon-button">START CRASH</button>
+            </div>
+        </div>
+
+        <!-- Neon Roll Game Interface -->
+        <div id="neon-roll" class="game-interface">
+            <h2 style="text-align: center; color: #00ff80; margin-bottom: 20px;">🎰 NEON ROLL</h2>
+            
+            <div class="roller-container">
+                <div class="roller red" id="roller1"></div>
+                <div class="roller blue" id="roller2"></div>
+                <div class="roller green" id="roller3"></div>
+                <div class="roller yellow" id="roller4"></div>
+            </div>
+
+            <div class="bet-buttons">
+                <button class="bet-button" onclick="placeBet('red', 5)">🔴 Red 2x (5 EC)</button>
+                <button class="bet-button" onclick="placeBet('blue', 5)">🔵 Blue 2x (5 EC)</button>
+                <button class="bet-button" onclick="placeBet('green', 5)">🟢 Green 5x (5 EC)</button>
+                <button class="bet-button" onclick="placeBet('yellow', 5)">🟡 Yellow 45x (5 EC)</button>
+            </div>
+
+            <div class="bet-buttons">
+                <button class="bet-button" onclick="placeBet('red', 10)">🔴 Red 2x (10 EC)</button>
+                <button class="bet-button" onclick="placeBet('blue', 10)">🔵 Blue 2x (10 EC)</button>
+                <button class="bet-button" onclick="placeBet('green', 10)">🟢 Green 5x (10 EC)</button>
+                <button class="bet-button" onclick="placeBet('yellow', 10)">🟡 Yellow 45x (10 EC)</button>
+            </div>
+
+            <div id="roll-result" class="result-display" style="display: none;"></div>
+            <button class="neon-button" onclick="hideGame()" style="display: block; margin: 20px auto;">Back to Games</button>
+        </div>
+
+        <!-- Crypto Section -->
+        <div class="crypto-section">
+            <h2 style="text-align: center; color: #00ff80; margin-bottom: 20px;">💰 CRYPTOCURRENCY</h2>
+            
+            <div class="crypto-grid" id="crypto-grid">
+                <!-- Crypto cards will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="crypto-section">
+            <h2 style="text-align: center; color: #00ff80; margin-bottom: 20px;">📊 YOUR STATS</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-wagered">0</div>
+                    <div>Total Wagered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-won">0</div>
+                    <div>Total Won</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="games-played">0</div>
+                    <div>Games Played</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="win-rate">0%</div>
+                    <div>Win Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral Section -->
+        <div class="referral-section">
+            <h2 style="color: #00ff80; margin-bottom: 20px;">👥 REFERRAL PROGRAM</h2>
+            <p style="margin-bottom: 15px;">Earn 5% from Level 1, 2% from Level 2, and 1% from Level 3 referrals!</p>
+            
+            <div class="referral-link">
+                <span id="referral-link">https://t.me/neonroll_casino_bot?start=<span id="user-id">0</span></span>
+            </div>
+            
+            <button class="neon-button" onclick="copyReferralLink()" style="margin-top: 15px;">
+                📋 Copy Referral Link
             </button>
-            <button data-screen="deposit-screen" class="nav-item">
-                <i class="fas fa-wallet nav-icon"></i>
-                <span class="nav-text">Deposit</span>
-            </button>
-            <button data-screen="play-screen" class="nav-item active">
-                <i class="fas fa-gamepad nav-icon"></i>
-                <span class="nav-text">Play</span>
-            </button>
-            <button data-screen="withdraw-screen" class="nav-item">
-                <i class="fas fa-paper-plane nav-icon"></i>
-                <span class="nav-text">Withdraw</span>
-            </button>
-            <button data-screen="tasks-screen" class="nav-item">
-                <i class="fas fa-tasks nav-icon"></i>
-                <span class="nav-text">Tasks</span>
-            </button>
-        </nav>
+        </div>
+
+        <!-- Daily Tasks -->
+        <div class="task-list">
+            <h3 style="color: #00ff80; margin-bottom: 15px;">📋 Daily Tasks</h3>
+            <div id="tasks-container">
+                <!-- Tasks will be populated by JavaScript -->
+            </div>
+        </div>
     </div>
 
-    <script type="module">
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL",
-            authDomain: "neonroll-26174.firebaseapp.com",
-            projectId: "neonroll-26174",
-            storageBucket: "neonroll-26174.appspot.com",
-            messagingSenderId: "100820822860800075027",
-            appId: "1:100820822860800075027:web:abc123def456ghi789jkl"
+    <script>
+        // Game Data
+        let gameData = {
+            balance: 50.00,
+            totalWagered: 0,
+            totalWon: 0,
+            gamesPlayed: 0,
+            userId: 0,
+            username: 'Player',
+            vipLevel: 'BRONZE'
         };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            createParticles();
+            loadCryptoData();
+            loadTasks();
+            updateUI();
+        });
 
-        // Optimized Particle System
-        class ParticleSystem {
-            constructor(canvasId) {
-                this.canvas = document.getElementById(canvasId);
-                if (!this.canvas) return;
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.maxParticles = 50; // Limit particles for performance
-                this.resizeCanvas();
-                window.addEventListener('resize', () => this.resizeCanvas());
-            }
-            
-            resizeCanvas() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-            
-            create(x, y, color, count = 30, maxSpeed = 4, life = 60) {
-                // Limit particle creation for performance
-                if (this.particles.length > this.maxParticles) return;
+        function initializeApp() {
+            // Get Telegram user data
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                const user = tg.initDataUnsafe?.user;
                 
-                for (let i = 0; i < Math.min(count, 20); i++) {
-                    const angle = Math.random() * Math.PI * 2;
-                    const speed = Math.random() * maxSpeed + 1;
-                    this.particles.push({ 
-                        x, y, 
-                        vx: Math.cos(angle) * speed, 
-                        vy: Math.sin(angle) * speed, 
-                        color, 
-                        size: Math.random() * 2 + 1, 
-                        life: Math.random() * life + life / 2, 
-                        initialLife: life 
-                    });
-                }
-            }
-            
-            update() {
-                if (!this.ctx) return;
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                for (let i = this.particles.length - 1; i >= 0; i--) {
-                    const p = this.particles[i];
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    p.vy += 0.03;
-                    p.life--;
-                    
-                    if (p.life <= 0) {
-                        this.particles.splice(i, 1);
-                        continue;
-                    }
-                    
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = p.color;
-                    this.ctx.globalAlpha = p.life / p.initialLife;
-                    this.ctx.fill();
+                if (user) {
+                    gameData.userId = user.id;
+                    gameData.username = user.first_name || user.username || 'Player';
                 }
                 
-                this.ctx.globalAlpha = 1;
+                tg.ready();
+                tg.expand();
             }
         }
 
-        // Main Casino App
-        class CasinoApp {
-            constructor() {
-                this.tg = window.Telegram.WebApp;
-                this.state = {
-                    balance: 0.00,
-                    betAmount: 5.00,
-                    gamePhase: 'betting',
-                    timeLeft: 10,
-                    myBets: {},
-                    tasks: [],
-                    completedTasks: [],
-                    referrals: { l1: 0, l2: 0, l3: 0 },
-                    activeScreen: 'play-screen',
-                    user: null,
-                    isNewUser: false,
-                    totalBetsPlaced: 0,
-                    totalWinnings: 0,
-                    gamesPlayed: 0,
-                    lastLoginDate: null,
-                    isConnected: true,
-                };
-                
-                this.config = {
-                    bettingTime: 10,
-                    rollingTime: 4,
-                    multipliers: { red: 2, blue: 2, green: 5, yellow: 45 },
-                    probabilities: [
-                        { color: 'red', weight: 44, hex: '#FF1B55' }, 
-                        { color: 'blue', weight: 44, hex: '#00BFFF' },
-                        { color: 'green', weight: 10, hex: '#00FF7F' }, 
-                        { color: 'yellow', weight: 2, hex: '#FFD700' },
-                    ],
-                    minBet: 1, 
-                    maxBet: 1000,
-                    newUserBonus: 20,
-                    crypto: {
-                        deposit: [
-                            { 
-                                id: 'ton', 
-                                name: 'TON', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11419.png',
-                                rate: 2.45,
-                                minDeposit: 1
-                            },
-                            { 
-                                id: 'usdt', 
-                                name: 'USDT TRC20', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
-                                rate: 1.00,
-                                minDeposit: 5
-                            },
-                            { 
-                                id: 'tron', 
-                                name: 'TRON', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1958.png',
-                                rate: 0.15,
-                                minDeposit: 50
-                            },
-                            { 
-                                id: 'bnb', 
-                                name: 'BNB BEP20', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png',
-                                rate: 650.00,
-                                minDeposit: 0.01
-                            },
-                            { 
-                                id: 'btc', 
-                                name: 'Bitcoin', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1.png',
-                                rate: 45000,
-                                minDeposit: 0.001
-                            },
-                            { 
-                                id: 'doge', 
-                                name: 'Dogecoin', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/74.png',
-                                rate: 0.35,
-                                minDeposit: 10
-                            },
-                            { 
-                                id: 'ltc', 
-                                name: 'LiteCoin', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2.png',
-                                rate: 85.00,
-                                minDeposit: 0.1
-                            },
-                            { 
-                                id: 'usdc', 
-                                name: 'USDC ERC20', 
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png',
-                                rate: 1.00,
-                                minDeposit: 5
-                            },
-                        ],
-                        withdraw: [
-                            { id: 'ton', name: 'TON', min: 27 },
-                            { id: 'usdt', name: 'USDT TRC20', min: 45 },
-                            { id: 'tron', name: 'TRON', min: 15 },
-                            { id: 'bnb', name: 'BNB BEP20', min: 29 },
-                            { id: 'btc', name: 'Bitcoin', min: 100 },
-                            { id: 'doge', name: 'Dogecoin', min: 41 },
-                            { id: 'ltc', name: 'LiteCoin', min: 15 },
-                            { id: 'usdc', name: 'USDC ERC20', min: 45 },
-                        ]
-                    },
-                };
-                
-                this.dom = this.getDomElements();
-                this.particleSystem = new ParticleSystem('particle-canvas');
-                this.sounds = this.initSounds();
-                this.gameInterval = null;
-                this.historyCache = [];
-                this.isSoundEnabled = false;
-                this.isTickPlaying = false;
-                this.connectionCheckInterval = null;
-                this.keyboardValue = '0';
-                this.isKeyboardOpen = false;
-                
-                // Performance optimizations
-                this.rafId = null;
-                this.lastUpdate = 0;
-                this.updateThrottle = 16; // ~60fps
-            }
-
-            async init() {
-                this.tg.ready();
-                this.tg.expand();
-                this.tg.setHeaderColor('#0D061A');
-                this.tg.setBackgroundColor('#0D061A');
-
-                this.setupEventListeners();
-                await this.initUserInfo();
-                await this.loadUserData();
-                this.updateBetAmountDisplay();
-                this.populateRoller();
-                this.generateHistory();
-                this.renderAllDynamicContent();
-                this.startNewRound();
-                this.startAnimationLoop();
-                this.startConnectionCheck();
-                
-                if (Tone.context.state !== 'running') {
-                    Tone.context.resume();
-                }
-                Tone.Transport.start();
-            }
-
-            getDomElements() {
-                const ids = [
-                    'app', 'username', 'user-id', 'user-avatar-container', 'user-avatar-placeholder', 'user-avatar',
-                    'balance', 'balance-container', 'play-screen', 'timer-status', 'timer', 'roller-container', 'roller',
-                    'history', 'players-bets', 'friends-screen', 'referral-stats', 'deposit-screen',
-                    'deposit-options', 'withdraw-screen', 'withdraw-options', 'tasks-screen', 'tasks-list', 'welcome-bonus-container',
-                    'deposit-details-screen', 'back-to-deposit', 'deposit-details-title', 'wallet-address', 'copy-wallet-btn', 
-                    'exchange-rate', 'qr-code', 'i-have-paid-btn', 'min-withdraw-amount', 'connection-status',
-                    'main-content-wrapper', 'modal-container', 'modal-content', 'modal-title', 'modal-text', 
-                    'betting-controls', 'bet-amount-btn', 'withdraw-currency', 'withdraw-address', 'withdraw-amount', 
-                    'withdraw-btn', 'referral-link', 'share-referral-btn', 'generate-tasks-btn', 'navigation-bar',
-                    'copy-referral-btn', 'keyboard-modal', 'keyboard-display'
-                ];
-                
-                const elements = {};
-                ids.forEach(id => {
-                    elements[this.toCamelCase(id)] = document.getElementById(id);
-                });
-                
-                elements.navItems = document.querySelectorAll('.nav-item');
-                elements.screens = document.querySelectorAll('.screen');
-                elements.betControlBtns = document.querySelectorAll('.bet-control-btn');
-                elements.betBtns = document.querySelectorAll('.bet-btn');
-                elements.keyboardKeys = document.querySelectorAll('.keyboard-key');
-                
-                return elements;
-            }
-
-            toCamelCase(str) {
-                return str.replace(/-(\w)/g, (_, c) => c.toUpperCase());
-            }
-
-            async initUserInfo() {
-                try {
-                    const user = this.tg.initDataUnsafe?.user;
-                    if (user) {
-                        this.state.user = user;
-                        
-                        const displayName = user.first_name || user.username || 'Player';
-                        this.dom.username.textContent = displayName;
-                        this.dom.userId.textContent = `ID: ${user.id}`;
-                        
-                        if (user.photo_url) {
-                            this.dom.userAvatar.src = user.photo_url;
-                            this.dom.userAvatar.classList.remove('hidden');
-                            this.dom.userAvatarPlaceholder.classList.add('hidden');
-                        }
-                        
-                        this.dom.referralLink.value = `https://t.me/YourBotName?start=${user.id}`;
-                        
-                    } else {
-                        this.dom.username.textContent = 'Test Player';
-                        this.dom.userId.textContent = 'ID: 123456789';
-                        this.dom.referralLink.value = 'https://t.me/YourBotName?start=123456789';
-                    }
-                } catch (e) {
-                    console.error("Failed to get user info:", e);
-                    this.dom.username.textContent = 'Player';
-                    this.dom.userId.textContent = 'ID: Unknown';
-                }
-            }
-
-            async loadUserData() {
-                try {
-                    if (!this.state.user?.id) {
-                        this.state.isNewUser = true;
-                        this.giveNewUserBonus();
-                        return;
-                    }
-
-                    const userDoc = await db.collection('users').doc(this.state.user.id.toString()).get();
-                    
-                    if (userDoc.exists) {
-                        const userData = userDoc.data();
-                        this.state = { ...this.state, ...userData };
-                        this.historyCache = userData.historyCache || [];
-                        console.log('User data loaded from Firebase');
-                    } else {
-                        this.state.isNewUser = true;
-                        this.giveNewUserBonus();
-                        await this.saveUserData();
-                    }
-                } catch (error) {
-                    console.error('Error loading user data:', error);
-                    this.updateConnectionStatus(false);
-                    this.state.isNewUser = true;
-                    this.giveNewUserBonus();
-                }
-                
-                this.updateBalance(true);
-            }
-
-            async saveUserData() {
-                try {
-                    if (!this.state.user?.id) return;
-
-                    const dataToSave = {
-                        balance: this.state.balance,
-                        tasks: this.state.tasks,
-                        completedTasks: this.state.completedTasks,
-                        referrals: this.state.referrals,
-                        totalBetsPlaced: this.state.totalBetsPlaced,
-                        totalWinnings: this.state.totalWinnings,
-                        gamesPlayed: this.state.gamesPlayed,
-                        lastLoginDate: new Date().toISOString(),
-                        historyCache: this.historyCache,
-                        user: this.state.user,
-                        isNewUser: false,
-                    };
-
-                    await db.collection('users').doc(this.state.user.id.toString()).set(dataToSave, { merge: true });
-                    this.updateConnectionStatus(true);
-                } catch (error) {
-                    console.error('Error saving user data:', error);
-                    this.updateConnectionStatus(false);
-                }
-            }
-
-            giveNewUserBonus() {
-                if (this.state.balance > 0) return;
-                
-                this.state.balance = this.config.newUserBonus;
-                this.state.isNewUser = false;
-                
-                this.dom.welcomeBonusContainer.classList.remove('hidden');
-                setTimeout(() => {
-                    this.dom.welcomeBonusContainer.classList.add('hidden');
-                }, 5000);
-                
-                const displayName = this.state.user?.first_name || 'Player';
-                this.showModal(
-                    `Welcome, ${displayName}!`, 
-                    `You've received ${this.config.newUserBonus} EC as a welcome bonus! Start playing and good luck!`, 
-                    'green', 
-                    6000
-                );
-                
-                this.saveUserData();
-            }
-
-            updateConnectionStatus(isConnected) {
-                this.state.isConnected = isConnected;
-                const statusEl = this.dom.connectionStatus;
-                
-                if (isConnected) {
-                    statusEl.className = 'connection-status connection-online';
-                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Online';
-                } else {
-                    statusEl.className = 'connection-status connection-offline';
-                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Offline';
-                }
-            }
-
-            startConnectionCheck() {
-                this.connectionCheckInterval = setInterval(async () => {
-                    try {
-                        await db.collection('system').doc('status').get();
-                        this.updateConnectionStatus(true);
-                    } catch (error) {
-                        this.updateConnectionStatus(false);
-                    }
-                }, 30000);
-            }
+        function updateUI() {
+            document.getElementById('username').textContent = gameData.username;
+            document.getElementById('balance').textContent = gameData.balance.toFixed(2);
+            document.getElementById('user-id').textContent = gameData.userId;
+            document.getElementById('vip-badge').textContent = gameData.vipLevel;
             
-            initSounds() {
-                return {
-                    click: new Tone.Synth({ oscillator: { type: 'sine' }, volume: -12, envelope: { attack: 0.01, decay: 0.1, sustain: 0, release: 0.1 } }).toDestination(),
-                    bet: new Tone.Synth({ oscillator: { type: 'triangle' }, volume: -10, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 } }).toDestination(),
-                    win: new Tone.Synth({ oscillator: { type: 'sine' }, volume: -8, envelope: { attack: 0.05, decay: 0.4, sustain: 0, release: 0.2 } }).toDestination(),
-                    jackpot: new Tone.PolySynth(Tone.Synth, { oscillator: { type: "fatsawtooth" }, volume: -6, envelope: { attack: 0.1, decay: 0.8, sustain: 0.2, release: 0.5 } }).toDestination(),
-                    tick: new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 2, volume: -15, envelope: { attack: 0.001, decay: 0.2, sustain: 0 } }).toDestination(),
-                    lose: new Tone.Synth({ oscillator: { type: 'square' }, volume: -15, envelope: { attack: 0.01, decay: 0.3, sustain: 0, release: 0.1 } }).toDestination(),
-                };
-            }
-
-            enableSound() {
-                if (this.isSoundEnabled) return;
-                Tone.start();
-                this.isSoundEnabled = true;
-            }
-
-            hapticFeedback(type = 'soft') {
-                try { this.tg.HapticFeedback.impactOccurred(type); } catch (e) {}
-            }
+            // Update stats
+            document.getElementById('total-wagered').textContent = gameData.totalWagered.toFixed(2);
+            document.getElementById('total-won').textContent = gameData.totalWon.toFixed(2);
+            document.getElementById('games-played').textContent = gameData.gamesPlayed;
             
-            hapticNotification(type = 'success') {
-                try { this.tg.HapticFeedback.notificationOccurred(type); } catch (e) {}
+            const winRate = gameData.gamesPlayed > 0 ? 
+                ((gameData.totalWon / gameData.totalWagered) * 100) : 0;
+            document.getElementById('win-rate').textContent = winRate.toFixed(1) + '%';
+        }
+
+        function showGame(gameId) {
+            // Hide all games
+            document.querySelectorAll('.game-interface').forEach(game => {
+                game.style.display = 'none';
+            });
+            
+            // Show selected game
+            document.getElementById(gameId).style.display = 'block';
+            
+            // Scroll to game
+            document.getElementById(gameId).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideGame() {
+            document.querySelectorAll('.game-interface').forEach(game => {
+                game.style.display = 'none';
+            });
+        }
+
+        function placeBet(color, amount) {
+            if (gameData.balance < amount) {
+                alert('💸 Insufficient balance!');
+                return;
             }
 
-            setupEventListeners() {
-                document.body.addEventListener('click', () => this.enableSound(), { once: true });
-                
-                // Navigation
-                this.dom.navItems.forEach(item => item.addEventListener('click', (e) => this.handleNavigation(e)));
-                
-                // Betting controls
-                this.dom.betControlBtns.forEach(btn => btn.addEventListener('click', (e) => this.handleBetControls(e.currentTarget.dataset.action)));
-                this.dom.betBtns.forEach(btn => btn.addEventListener('click', (e) => this.placeBet(e.currentTarget.dataset.color)));
-                
-                // Bet amount button (opens keyboard)
-                this.dom.betAmountBtn.addEventListener('click', () => this.openKeyboard());
-                
-                // Keyboard
-                this.dom.keyboardKeys.forEach(key => key.addEventListener('click', (e) => this.handleKeyboardInput(e.currentTarget.dataset.key)));
-                
-                // Other buttons
-                this.dom.backToDeposit.addEventListener('click', () => this.hideDepositDetails());
-                this.dom.iHavePaidBtn.addEventListener('click', () => this.simulateDeposit());
-                this.dom.copyWalletBtn.addEventListener('click', () => this.copyWallet());
-                this.dom.copyReferralBtn.addEventListener('click', () => this.copyReferralLink());
-                this.dom.generateTasksBtn.addEventListener('click', () => this.handleGenerateTasks());
-                this.dom.shareReferralBtn.addEventListener('click', () => this.handleShareReferral());
-                this.dom.withdrawBtn.addEventListener('click', () => this.handleWithdraw());
+            // Deduct bet amount
+            gameData.balance -= amount;
+            gameData.totalWagered += amount;
+            gameData.gamesPlayed++;
 
-                // Auto-save
-                window.addEventListener('beforeunload', () => this.saveUserData());
-                setInterval(() => this.saveUserData(), 60000);
-                
-                // Close keyboard on outside click
-                this.dom.keyboardModal.addEventListener('click', (e) => {
-                    if (e.target === this.dom.keyboardModal) {
-                        this.closeKeyboard();
-                    }
-                });
+            // Simulate game outcome
+            const outcome = calculateNeonRoll(color, amount);
+            
+            // Add win amount
+            if (outcome.won) {
+                gameData.balance += outcome.winAmount;
+                gameData.totalWon += outcome.winAmount;
             }
 
-            // Custom Keyboard Functions
-            openKeyboard() {
-                this.isKeyboardOpen = true;
-                this.keyboardValue = this.state.betAmount.toString();
-                this.dom.keyboardDisplay.textContent = this.keyboardValue;
-                this.dom.keyboardModal.classList.remove('hidden');
-                this.hapticFeedback('light');
-            }
+            // Show result
+            showResult(outcome);
+            updateUI();
+        }
 
-            closeKeyboard() {
-                this.isKeyboardOpen = false;
-                this.dom.keyboardModal.classList.add('hidden');
-            }
-
-            handleKeyboardInput(key) {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback('light');
-                
-                switch (key) {
-                    case 'clear':
-                        this.keyboardValue = '0';
-                        break;
-                    case 'backspace':
-                        if (this.keyboardValue.length > 1) {
-                            this.keyboardValue = this.keyboardValue.slice(0,  -1);
-                        } else {
-                            this.keyboardValue = '0';
-                        }
-                        break;
-                    case 'confirm':
-                        const value = parseFloat(this.keyboardValue);
-                        if (value >= this.config.minBet && value <= Math.min(this.config.maxBet, this.state.balance)) {
-                            this.state.betAmount = value;
-                            this.updateBetAmountDisplay();
-                        }
-                        this.closeKeyboard();
-                        return;
-                    case '.':
-                        if (!this.keyboardValue.includes('.')) {
-                            this.keyboardValue += '.';
-                        }
-                        break;
-                    default:
-                        if (this.keyboardValue === '0') {
-                            this.keyboardValue = key;
-                        } else if (this.keyboardValue.length < 8) {
-                            this.keyboardValue += key;
-                        }
-                        break;
-                }
-                
-                this.dom.keyboardDisplay.textContent = this.keyboardValue;
-            }
-
-            renderAllDynamicContent() {
-                this.renderCryptoOptions();
-                this.renderTasks();
-                this.renderReferralStats();
-            }
-
-            startAnimationLoop() {
-                const animate = (currentTime) => {
-                    if (currentTime - this.lastUpdate >= this.updateThrottle) {
-                        this.particleSystem.update();
-                        this.lastUpdate = currentTime;
-                    }
-                    this.rafId = requestAnimationFrame(animate);
-                };
-                animate(0);
-            }
-
-            gameLoop() {
-                this.state.timeLeft--;
-                this.updateTimerDisplay();
-                
-                if (this.state.timeLeft <= 0) {
-                    clearInterval(this.gameInterval);
-                    this.startRollingPhase();
-                } else if (this.state.timeLeft < 4) {
-                    this.playTickSound();
+        function calculateNeonRoll(betColor, betAmount) {
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            const probabilities = [0.44, 0.44, 0.10, 0.02];
+            const multipliers = [2, 2, 5, 45];
+            
+            let random = Math.random();
+            let cumulative = 0;
+            let winningColor = 'red';
+            
+            for (let i = 0; i < colors.length; i++) {
+                cumulative += probabilities[i];
+                if (random <= cumulative) {
+                    winningColor = colors[i];
+                    break;
                 }
             }
             
-            playTickSound() {
-                if (this.isTickPlaying || !this.isSoundEnabled) return;
-                this.isTickPlaying = true;
-                this.sounds.tick.triggerAttackRelease('C2', '8n');
-                setTimeout(() => { this.isTickPlaying = false; }, 300);
-            }
-
-            startNewRound() {
-                clearInterval(this.gameInterval);
-                this.dom.rollerContainer.style.boxShadow = 'none';
-                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('pulse-anim'));
-                
-                this.state.gamePhase = 'betting';
-                this.state.timeLeft = this.config.bettingTime;
-                this.state.myBets = {};
-                
-                this.dom.bettingControls.style.opacity = '1';
-                this.dom.bettingControls.style.pointerEvents = 'auto';
-                this.dom.roller.style.transition = 'none';
-                this.dom.roller.style.transform = 'translateX(0px)';
-                
-                this.updateTimerDisplay();
-                this.generatePlayersBets();
-                this.gameInterval = setInterval(() => this.gameLoop(), 1000);
-            }
-
-            startRollingPhase() {
-                this.state.gamePhase = 'rolling';
-                this.state.gamesPlayed++;
-                
-                this.dom.bettingControls.style.opacity = '0.5';
-                this.dom.bettingControls.style.pointerEvents = 'none';
-                this.dom.timerStatus.textContent = 'ROLLING...';
-                this.dom.timerStatus.classList.replace('text-glow', 'text-pink-400');
-                this.hapticFeedback('light');
-                
-                const winner = this.determineWinner();
-                const allItems = Array.from(this.dom.roller.querySelectorAll('.roller-item'));
-                const winningItems = allItems.filter(item => item.dataset.color === winner.color);
-                
-                if (winningItems.length > 0) {
-                    const targetItem = winningItems[Math.floor(winningItems.length * 0.7)];
-                    const containerWidth = this.dom.rollerContainer.offsetWidth;
-                    const randomOffset = (Math.random() - 0.5) * 30;
-                    const targetPosition = targetItem.offsetLeft + (targetItem.offsetWidth / 2) - (containerWidth / 2) + randomOffset;
-                    
-                    this.dom.roller.style.transition = `transform ${this.config.rollingTime}s cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
-                    this.dom.roller.style.transform = `translateX(-${targetPosition}px)`;
-                }
-                
-                // Update task progress for games played
-                this.updateTaskProgress('games_played', this.state.gamesPlayed);
-                
-                setTimeout(() => this.finishRound(winner), this.config.rollingTime * 1000);
-            }
-
-            finishRound(winner) {
-                this.state.gamePhase = 'finished';
-                const winnerData = this.config.probabilities.find(p => p.color === winner.color);
-                
-                // Find and animate winning element
-                const allItems = Array.from(this.dom.roller.querySelectorAll('.roller-item'));
-                const containerRect = this.dom.rollerContainer.getBoundingClientRect();
-                const centerX = containerRect.left + containerRect.width / 2;
-                
-                const winningElement = allItems.find(item => {
-                    const rect = item.getBoundingClientRect();
-                    return Math.abs(rect.left + rect.width/2 - centerX) < 35 && item.dataset.color === winner.color;
-                });
-                
-                if (winningElement) {
-                    winningElement.classList.add('win-pulse');
-                    setTimeout(() => { winningElement.classList.remove('win-pulse'); }, 1000);
-                }
-                
-                this.triggerWinEffects(winnerData);
-                this.calculateWinnings(winner);
-                this.generateHistory(winner.color);
-                this.saveUserData();
-                
-                setTimeout(() => this.startNewRound(), 3000);
-            }
-
-            determineWinner() {
-                const totalWeight = this.config.probabilities.reduce((sum, p) => sum + p.weight, 0);
-                let randomNum = Math.random() * totalWeight;
-                
-                for (const prob of this.config.probabilities) {
-                    if (randomNum < prob.weight) return prob;
-                    randomNum -= prob.weight;
-                }
-                
-                return this.config.probabilities[0];
-            }
-
-            calculateWinnings(winner) {
-                let totalWinnings = 0;
-                let hasWon = false;
-                
-                if (this.state.myBets[winner.color]) {
-                    const betAmount = this.state.myBets[winner.color];
-                    const multiplier = this.config.multipliers[winner.color];
-                    const winnings = betAmount * multiplier;
-                    totalWinnings += winnings;
-                    hasWon = true;
-                    this.state.totalWinnings += winnings;
-                }
-                
-                if (hasWon) {
-                    this.showModal(`🎉 You Won! +${totalWinnings.toFixed(2)} EC`, `Your bet on ${winner.color.toUpperCase()} paid off!`, 'green');
-                    this.state.balance += totalWinnings;
-                    this.updateBalance();
-                    this.hapticNotification('success');
-                    
-                    if (winner.color === 'yellow') {
-                        this.sounds.jackpot.triggerAttackRelease(["C4", "E4", "G4", "C5"], "1n");
-                    } else {
-                        this.sounds.win.triggerAttackRelease('C5', '4n');
-                    }
-                    
-                    this.updateTaskProgress('win', 1);
-                } else {
-                    const totalLost = Object.values(this.state.myBets).reduce((a, b) => a + b, 0);
-                    if(totalLost > 0) {
-                       this.showModal('💸 You Lost', `The winning color was ${winner.color.toUpperCase()}. Better luck next time!`, 'red');
-                       this.sounds.lose.triggerAttackRelease('C3', '4n');
-                       this.hapticNotification('error');
-                    }
-                }
-            }
-
-            placeBet(color) {
-                if (this.state.gamePhase !== 'betting') {
-                    this.showModal('⏰ Too Late!', 'Bets are closed for this round.', 'red');
-                    return;
-                }
-                
-                const amount = parseFloat(this.state.betAmount);
-                if (amount <= 0) {
-                    this.showModal('❌ Invalid Bet', 'Bet amount must be positive.', 'red');
-                    return;
-                }
-                
-                if (this.state.balance < amount) {
-                    this.showModal('💰 Insufficient Funds', 'You do not have enough balance to place this bet.', 'red');
-                    this.flashElement(this.dom.balanceContainer);
-                    this.flashElement(this.dom.betAmountBtn);
-                    return;
-                }
-                
-                this.state.balance -= amount;
-                this.state.myBets[color] = (this.state.myBets[color] || 0) + amount;
-                this.state.totalBetsPlaced += amount;
-                
-                this.updateBalance();
-                this.addMyBetToUI(color, amount);
-                this.sounds.bet.triggerAttackRelease('E4', '8n');
-                this.hapticFeedback('medium');
-                
-                const btn = document.querySelector(`.bet-btn[data-color="${color}"]`);
-                btn.style.transform = 'scale(0.95)';
-                setTimeout(() => btn.style.transform = 'scale(1)', 200);
-                
-                this.updateTaskProgress('bet', amount);
-                this.updateTaskProgress('total_bets', this.state.totalBetsPlaced);
-            }
-
-            triggerWinEffects(winnerData) {
-                const pointerRect = this.dom.rollerContainer.getBoundingClientRect();
-                this.particleSystem.create(
-                    pointerRect.left + pointerRect.width / 2, 
-                    pointerRect.top + 40, 
-                    winnerData.hex, 
-                    60, 
-                    6
-                );
-                
-                const winningBetBtn = document.querySelector(`.bet-btn[data-color="${winnerData.color}"]`);
-                if (winningBetBtn) {
-                    winningBetBtn.style.setProperty('--shadow-color', winnerData.hex);
-                    winningBetBtn.classList.add('pulse-anim');
-                }
-                
-                this.dom.rollerContainer.style.boxShadow = `0 0 25px ${winnerData.hex}`;
-                
-                const glowEffect = document.createElement('div');
-                glowEffect.className = 'win-glow-effect';
-                glowEffect.style.setProperty('--glow-color', winnerData.hex);
-                this.dom.app.appendChild(glowEffect);
-                setTimeout(() => glowEffect.remove(), 1000);
-            }
-
-            handleNavigation(event) {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback('soft');
-                const target = event.currentTarget;
-                const screenName = target.dataset.screen;
-                
-                this.dom.navItems.forEach(item => item.classList.remove('active'));
-                target.classList.add('active');
-                this.showScreen(screenName);
-                
-                const showBettingControls = screenName === 'play-screen';
-                this.dom.bettingControls.style.display = showBettingControls ? 'block' : 'none';
-                this.dom.navigationBar.style.borderRadius = showBettingControls ? '0' : '0 0 1.5rem 1.5rem';
-            }
-
-            showScreen(screenIdToShow) {
-                this.dom.screens.forEach(screen => screen.classList.add('hidden'));
-                const screenToShow = document.getElementById(screenIdToShow);
-                if (screenToShow) {
-                    screenToShow.classList.remove('hidden');
-                    screenToShow.classList.add('fade-in');
-                }
-                
-                if (screenIdToShow !== 'deposit-details-screen') {
-                    this.hideDepositDetails();
-                }
-                
-                this.state.activeScreen = screenIdToShow;
-            }
-
-            updateBalance(isInstant = false) {
-                const currentBalance = parseFloat(this.dom.balance.textContent.replace(/,/g, '')) || 0;
-                const targetBalance = this.state.balance;
-                
-                if (isInstant || Math.abs(currentBalance - targetBalance) < 0.01) {
-                    this.dom.balance.textContent = targetBalance.toFixed(2);
-                    return;
-                }
-                
-                const duration = 800;
-                let startTime = null;
-                const animate = (currentTime) => {
-                    if (!startTime) startTime = currentTime;
-                    const progress = Math.min((currentTime - startTime) / duration, 1);
-                    const currentVal = currentBalance + (targetBalance - currentBalance) * progress;
-                    this.dom.balance.textContent = currentVal.toFixed(2);
-                    if (progress < 1) requestAnimationFrame(animate);
-                };
-                requestAnimationFrame(animate);
-            }
-
-            handleBetControls(action) {
-                this.sounds.click.triggerAttackRelease('C4', '8n');
-                this.hapticFeedback('light');
-                let currentBet = parseFloat(this.state.betAmount);
-                let balance = this.state.balance;
-                
-                switch (action) {
-                    case 'min': currentBet = this.config.minBet; break;
-                    case 'half': currentBet = Math.max(this.config.minBet, currentBet / 2); break;
-                    case 'double': currentBet = Math.min(balance, currentBet * 2); break;
-                    case 'max': currentBet = Math.min(this.config.maxBet, balance); break;
-                }
-                
-                this.state.betAmount = currentBet;
-                this.updateBetAmountDisplay();
-            }
-
-            updateBetAmountDisplay() {
-                this.dom.betAmountBtn.textContent = this.state.betAmount.toFixed(2);
-            }
+            const won = betColor === winningColor;
+            const multiplier = multipliers[colors.indexOf(winningColor)];
+            const winAmount = won ? betAmount * multiplier : 0;
             
-            updateTimerDisplay() {
-                const seconds = String(this.state.timeLeft).padStart(2, '0');
-                this.dom.timer.textContent = `00:${seconds}`;
-                
-                if (this.state.gamePhase === 'betting') {
-                    this.dom.timerStatus.textContent = 'Placing Bets';
-                    this.dom.timerStatus.classList.add('text-glow');
-                    this.dom.timerStatus.classList.remove('text-pink-400');
-                }
-            }
+            return {
+                won,
+                winningColor,
+                multiplier,
+                winAmount,
+                betAmount
+            };
+        }
+
+        function showResult(outcome) {
+            const resultDiv = document.getElementById('roll-result');
+            const colorEmoji = {
+                'red': '🔴',
+                'blue': '🔵', 
+                'green': '🟢',
+                'yellow': '🟡'
+            };
             
-            showModal(title, message, type, duration = 3000) {
-                this.dom.modalTitle.textContent = title;
-                this.dom.modalText.innerHTML = message;
-                const modalContent = this.dom.modalContent;
-                const colorMap = { 
-                    green: 'var(--neon-green)', 
-                    red: 'var(--neon-red)', 
-                    blue: 'var(--accent-cyan)', 
-                    purple: 'var(--accent-purple)' 
-                };
-                
-                modalContent.style.borderColor = colorMap[type] || colorMap.blue;
-                modalContent.style.boxShadow = `0 0 20px ${colorMap[type] || colorMap.blue}`;
-                
-                this.dom.modalContainer.classList.remove('hidden');
-                setTimeout(() => modalContent.classList.remove('scale-95', 'opacity-0'), 10);
-                
-                setTimeout(() => {
-                    modalContent.classList.add('scale-95', 'opacity-0');
-                    setTimeout(() => this.dom.modalContainer.classList.add('hidden'), 300);
-                }, duration);
-            }
-
-            flashElement(element) {
-                if (!element) return;
-                element.classList.add('flash-red');
-                setTimeout(() => element.classList.remove('flash-red'), 500);
-            }
-
-            populateRoller() {
-                let weightedColors = [];
-                this.config.probabilities.forEach(p => {
-                    for (let i = 0; i < p.weight; i++) weightedColors.push(p.color);
-                });
-                
-                let rollerItems = [];
-                // Create optimized number of items
-                for(let i = 0; i < 8; i++) {
-                    const shuffled = [...weightedColors].sort(() => 0.5 - Math.random());
-                    rollerItems.push(...shuffled);
-                }
-                
-                const itemsHtml = rollerItems.map(color => 
-                    `<div data-color="${color}" class="roller-item bet-btn-${color}"></div>`
-                ).join('');
-                
-                this.dom.roller.innerHTML = itemsHtml;
-            }
-            
-            generateHistory(newWinnerColor) {
-                if (newWinnerColor) {
-                    this.historyCache.unshift(newWinnerColor);
-                    if (this.historyCache.length > 10) this.historyCache.pop();
-                } else if (this.historyCache.length === 0) {
-                    for (let i = 0; i < 5; i++) {
-                        this.historyCache.push(this.determineWinner().color);
-                    }
-                }
-                
-                this.dom.history.innerHTML = this.historyCache.slice(0, 5).map(color => {
-                    const colorHex = this.config.probabilities.find(p => p.color === color).hex;
-                    return `<div class="w-6 h-6 rounded-lg" style="background-color: ${colorHex}; box-shadow: 0 0 6px ${colorHex};"></div>`;
-                }).join('');
-            }
-
-            generatePlayersBets() {
-                const names = [
-                    "CyberRunner", "NeonNinja", "Glitch", "Vector", "Syntax", "Proxy", 
-                    "ByteMaster", "ZeroCool", "Matrix", "Phoenix", "Quantum", "Nexus",
-                    "Vortex", "Cipher", "Echo", "Pulse", "Flux", "Nova"
-                ];
-                
-                const betsHtml = Array.from({ length: 15 }).map(() => {
-                    const name = names[Math.floor(Math.random() * names.length)];
-                    const amount = (Math.random() * 80 + 5).toFixed(2);
-                    const prob = this.determineWinner();
-                    return `<div class="flex items-center gap-3 text-sm p-2 rounded-lg bg-black/20 fade-in">
-                            <div class="w-4 h-4 rounded-full bet-btn-${prob.color}"></div>
-                            <p class="flex-grow"><span class="font-bold">${name}</span> bet <span class="font-bold text-white">${amount}</span></p>
-                            <span class="font-mono text-xs text-text-secondary">x${this.config.multipliers[prob.color]}</span>
-                        </div>`;
-                }).join('');
-                this.dom.playersBets.innerHTML = betsHtml;
-            }
-            
-            addMyBetToUI(color, amount) {
-                const existingBet = this.dom.playersBets.querySelector(`[data-my-bet-color="${color}"]`);
-                if (existingBet) {
-                    const currentAmount = parseFloat(existingBet.dataset.myBetAmount);
-                    const newAmount = currentAmount + amount;
-                    existingBet.dataset.myBetAmount = newAmount;
-                    existingBet.querySelector('.my-bet-amount').textContent = newAmount.toFixed(2);
-                    return;
-                }
-                
-                const betHtml = `<div class="flex items-center gap-3 text-sm p-2 my-bet-glow rounded-lg slide-in-up" data-my-bet-color="${color}" data-my-bet-amount="${amount}">
-                        <div class="w-4 h-4 rounded-full bet-btn-${color}"></div>
-                        <p class="flex-grow"><span class="font-bold text-cyan-300">You</span> bet <span class="font-bold text-white my-bet-amount">${amount.toFixed(2)}</span></p>
-                        <span class="font-mono text-xs text-text-secondary">x${this.config.multipliers[color]}</span>
-                    </div>`;
-                this.dom.playersBets.insertAdjacentHTML('afterbegin', betHtml);
-            }
-
-            // Generate wallet address from seed phrase (simplified simulation)
-            generateWalletAddress(cryptoId, seedPhrase) {
-                // This is a simplified simulation - in real implementation you would use proper crypto libraries
-                const hash = this.simpleHash(seedPhrase + cryptoId);
-                
-                const addressFormats = {
-                    'ton': () => 'UQ' + hash.substring(0, 46),
-                    'usdt': () => 'T' + hash.substring(0, 33),
-                    'tron': () => 'T' + hash.substring(0, 33),
-                    'bnb': () => '0x' + hash.substring(0, 40),
-                    'btc': () => 'bc1q' + hash.substring(0, 39),
-                    'doge': () => 'D' + hash.substring(0, 33),
-                    'ltc': () => 'ltc1q' + hash.substring(0, 39),
-                    'usdc': () => '0x' + hash.substring(0, 40),
-                };
-                
-                return addressFormats[cryptoId] ? addressFormats[cryptoId]() : hash.substring(0, 34);
-            }
-
-            simpleHash(str) {
-                let hash = 0;
-                for (let i = 0; i < str.length; i++) {
-                    const char = str.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash; // Convert to 32bit integer
-                }
-                return Math.abs(hash).toString(16).padStart(48, '0');
-            }
-
-            renderCryptoOptions() {
-                // Deposit options
-                this.dom.depositOptions.innerHTML = this.config.crypto.deposit.map(c => `
-                    <button data-crypto-id="${c.id}" class="deposit-option-btn crypto-card glassmorphism p-4 rounded-xl flex items-center gap-4 neon-button w-full">
-                        <img src="${c.icon}" class="w-12 h-12 rounded-lg" onerror="this.src='/placeholder.svg?height=48&width=48';">
-                        <div class="flex-grow text-left">
-                            <div class="font-bold text-lg">${c.name}</div>
-                            <div class="text-sm text-text-secondary">Rate: 1 ${c.name.split(' ')[0]} ≈ ${c.rate} EC</div>
-                        </div>
-                        <i class="fas fa-arrow-right text-accent-cyan text-xl"></i>
-                    </button>
-                `).join('');
-                
-                // Withdraw options
-                this.dom.withdrawOptions.innerHTML = this.config.crypto.withdraw.map(c => {
-                    const depositCrypto = this.config.crypto.deposit.find(d => d.id === c.id);
-                    return `
-                        <div class="crypto-card glassmorphism p-4 rounded-xl flex items-center gap-4">
-                            <img src="${depositCrypto?.icon || '/placeholder.svg?height=48&width=48'}" class="w-12 h-12 rounded-lg">
-                            <div class="flex-grow text-left">
-                                <div class="font-bold text-lg">${c.name}</div>
-                                <div class="text-sm text-text-secondary">Min: ${c.min} EC</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                this.dom.withdrawCurrency.innerHTML = this.config.crypto.withdraw.map(c => 
-                    `<option value="${c.id}">${c.name} (Min: ${c.min} EC)</option>`
-                ).join('');
-                
-                document.querySelectorAll('.deposit-option-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => this.showDepositDetails(e.currentTarget.dataset.cryptoId));
-                });
-            }
-
-            showDepositDetails(cryptoId) {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback();
-                const crypto = this.config.crypto.deposit.find(c => c.id === cryptoId);
-                if (!crypto) return;
-                
-                // Generate address from seed phrase (this would come from config in real implementation)
-                const seedPhrase = "your seed phrase here"; // This should be from config
-                const address = this.generateWalletAddress(cryptoId, seedPhrase);
-                
-                this.dom.depositDetailsTitle.textContent = `Deposit ${crypto.name}`;
-                this.dom.walletAddress.value = address;
-                this.dom.exchangeRate.textContent = `1 ${crypto.name.split(' ')[0]} ≈ ${crypto.rate} EC`;
-                
-                try {
-                    const qr = qrcode(0, 'M');
-                    qr.addData(address);
-                    qr.make();
-                    this.dom.qrCode.innerHTML = qr.createImgTag(6, 8);
-                } catch (e) {
-                    this.dom.qrCode.innerHTML = '<p class="text-xs text-red-500">Could not generate QR code.</p>';
-                }
-                
-                this.dom.depositDetailsScreen.classList.remove('hidden');
-                this.dom.mainContentWrapper.style.filter = 'blur(5px)';
-            }
-            
-            hideDepositDetails() {
-                this.dom.depositDetailsScreen.classList.add('hidden');
-                this.dom.mainContentWrapper.style.filter = 'none';
-            }
-            
-            simulateDeposit() {
-                this.hapticFeedback('heavy');
-                this.showModal('🔍 Verifying...', 'Checking the blockchain for your transaction. This may take a moment.', 'blue', 4000);
-                
-                setTimeout(() => {
-                    const depositAmount = Math.floor(Math.random() * 200) + 50;
-                    this.state.balance += depositAmount;
-                    this.updateBalance();
-                    this.hideDepositDetails();
-                    this.showModal('✅ Success!', `Your deposit of ${depositAmount.toFixed(2)} EC has been credited to your account.`, 'green', 5000);
-                    this.hapticNotification('success');
-                    this.saveUserData();
-                }, 4000);
-            }
-
-            handleWithdraw() {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback();
-                
-                const currency = this.dom.withdrawCurrency.value;
-                const address = this.dom.withdrawAddress.value.trim();
-                const amount = parseFloat(this.dom.withdrawAmount.value);
-                
-                if (!currency || !address || !amount) {
-                    this.showModal('❌ Error', 'Please fill all fields.', 'red');
-                    return;
-                }
-                
-                const minWithdraw = this.config.crypto.withdraw.find(c => c.id === currency)?.min || 0;
-                if (amount < minWithdraw) {
-                    this.showModal('❌ Error', `Minimum withdrawal for ${currency.toUpperCase()} is ${minWithdraw} EC.`, 'red');
-                    return;
-                }
-                
-                if (amount > this.state.balance) {
-                    this.showModal('❌ Error', 'Insufficient balance.', 'red');
-                    return;
-                }
-                
-                this.state.balance -= amount;
-                this.updateBalance();
-                this.showModal('⏳ Processing...', `Your withdrawal of ${amount} EC to ${address.substring(0, 10)}... is being processed.`, 'blue', 4000);
-                this.hapticNotification('success');
-                
-                setTimeout(() => {
-                    this.showModal('✅ Success!', `Withdrawal of ${amount} EC has been sent successfully.`, 'green', 5000);
-                }, 4000);
-                
-                this.dom.withdrawAddress.value = '';
-                this.dom.withdrawAmount.value = '';
-                this.saveUserData();
-            }
-
-            copyWallet() {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback();
-                const address = this.dom.walletAddress.value;
-                
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(address).then(() => {
-                        this.showModal('📋 Copied!', 'Wallet address copied to clipboard.', 'green');
-                    }).catch(() => {
-                        this.fallbackCopyTextToClipboard(address);
-                    });
-                } else {
-                    this.fallbackCopyTextToClipboard(address);
-                }
-            }
-
-            copyReferralLink() {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback();
-                const link = this.dom.referralLink.value;
-                
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(link).then(() => {
-                        this.showModal('📋 Copied!', 'Referral link copied to clipboard.', 'green');
-                    }).catch(() => {
-                        this.fallbackCopyTextToClipboard(link);
-                    });
-                } else {
-                    this.fallbackCopyTextToClipboard(link);
-                }
-            }
-
-            fallbackCopyTextToClipboard(text) {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                textArea.style.position = "fixed"; 
-                textArea.style.left = "-9999px";
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                
-                try {
-                    document.execCommand('copy');
-                    this.showModal('📋 Copied!', 'Text copied to clipboard.', 'green');
-                } catch (err) {
-                    this.showModal('❌ Error', 'Failed to copy text.', 'red');
-                }
-                
-                document.body.removeChild(textArea);
-            }
-
-            renderTasks() {
-                if (this.state.tasks.length === 0) {
-                    this.generateDefaultTasks();
-                }
-                this.updateTasksDisplay();
-            }
-
-            generateDefaultTasks() {
-                const defaultTasks = [
-                    { id: 'win_round', title: 'Win any round', reward: 15, progress: 0, target: 1, type: 'win' },
-                    { id: 'place_bet_50', title: 'Place a bet over 50 EC', reward: 25, progress: 0, target: 1, type: 'bet_amount' },
-                    { id: 'play_5_games', title: 'Play 5 games', reward: 20, progress: 0, target: 5, type: 'games_played' },
-                    { id: 'total_bets_100', title: 'Place total bets of 100 EC', reward: 30, progress: 0, target: 100, type: 'total_bets' },
-                    { id: 'play_10_games', title: 'Play 10 games', reward: 35, progress: 0, target: 10, type: 'games_played' },
-                    { id: 'win_3_rounds', title: 'Win 3 rounds', reward: 40, progress: 0, target: 3, type: 'win' },
-                    { id: 'total_bets_500', title: 'Place total bets of 500 EC', reward: 75, progress: 0, target: 500, type: 'total_bets' },
-                ];
-                
-                this.state.tasks = defaultTasks.filter(task => 
-                    !this.state.completedTasks.includes(task.id)
-                );
-            }
-
-            updateTaskProgress(type, value) {
-                let updated = false;
-                
-                this.state.tasks.forEach(task => {
-                    if (task.type === type) {
-                        if (type === 'bet_amount' && value >= 50) {
-                            task.progress = Math.min(task.progress + 1, task.target);
-                            updated = true;
-                        } else if (type === 'win') {
-                            task.progress = Math.min(task.progress + 1, task.target);
-                            updated = true;
-                        } else if (type === 'games_played') {
-                            task.progress = Math.min(this.state.gamesPlayed, task.target);
-                            updated = true;
-                        } else if (type === 'total_bets') {
-                            task.progress = Math.min(this.state.totalBetsPlaced, task.target);
-                            updated = true;
-                        }
-                        
-                        if (task.progress >= task.target && !this.state.completedTasks.includes(task.id)) {
-                            this.completeTask(task);
-                        }
-                    }
-                });
-                
-                if (updated) {
-                    this.updateTasksDisplay();
-                    this.saveUserData();
-                }
-            }
-
-            completeTask(task) {
-                this.state.completedTasks.push(task.id);
-                this.state.balance += task.reward;
-                this.updateBalance();
-                
-                this.showModal(
-                    '🎉 Task Completed!', 
-                    `You earned ${task.reward} EC for: ${task.title}`, 
-                    'green', 
-                    4000
-                );
-                
-                this.hapticNotification('success');
-                this.sounds.win.triggerAttackRelease('C5', '4n');
-                
-                this.state.tasks = this.state.tasks.filter(t => t.id !== task.id);
-            }
-
-            updateTasksDisplay() {
-                if (this.state.tasks.length === 0) {
-                    this.dom.tasksList.innerHTML = `
-                        <div class="text-center text-text-secondary p-8">
-                            <i class="fas fa-check-circle text-4xl text-green-400 mb-4"></i>
-                            <p class="text-lg font-bold">All tasks completed!</p>
-                            <p class="text-sm">Click "New" to generate more tasks</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                const tasksHtml = this.state.tasks.map(task => {
-                    const progressPercent = (task.progress / task.target) * 100;
-                    const isCompleted = this.state.completedTasks.includes(task.id);
-                    
-                    return `<div class="glassmorphism p-4 rounded-lg flex items-center gap-3 ${isCompleted ? 'task-completed' : ''} fade-in">
-                                <i class="fas fa-star text-yellow-300 text-2xl"></i>
-                                <div class="flex-grow">
-                                    <p class="font-bold text-sm">${task.title}</p>
-                                    <p class="text-xs text-green-400">💰 +${task.reward} EC</p>
-                                </div>
-                                <div class="w-24 text-center">
-                                    <div class="progress-bar-bg w-full h-2 mb-1">
-                                        <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
-                                    </div>
-                                    <p class="text-xs font-mono">${task.progress}/${task.target}</p>
-                                </div>
-                            </div>`;
-                }).join('');
-                
-                this.dom.tasksList.innerHTML = tasksHtml;
-            }
-            
-            renderReferralStats() {
-                this.dom.referralStats.innerHTML = `
-                    <div class="text-center p-3 bg-green-500/20 rounded-lg">
-                        <h4 class="font-bold text-sm">Level 1</h4>
-                        <p class="text-2xl font-orbitron text-green-400">${this.state.referrals.l1}</p>
-                        <p class="text-xs text-text-secondary">friends</p>
+            let resultText = '';
+            if (outcome.won) {
+                resultText = `
+                    <div style="color: #00ff80; font-size: 1.5rem; font-weight: bold;">🎉 YOU WON!</div>
+                    <div style="margin: 10px 0;">
+                        Winning Color: ${colorEmoji[outcome.winningColor]} ${outcome.winningColor.toUpperCase()}
                     </div>
-                    <div class="text-center p-3 bg-cyan-500/20 rounded-lg">
-                        <h4 class="font-bold text-sm">Level 2</h4>
-                        <p class="text-2xl font-orbitron text-cyan-400">${this.state.referrals.l2}</p>
-                        <p class="text-xs text-text-secondary">friends</p>
+                    <div style="color: #00ff80; font-size: 1.2rem;">
+                        Won: ${outcome.winAmount.toFixed(2)} EC (${outcome.multiplier}x)
                     </div>
-                    <div class="text-center p-3 bg-purple-500/20 rounded-lg">
-                        <h4 class="font-bold text-sm">Level 3</h4>
-                        <p class="text-2xl font-orbitron text-purple-400">${this.state.referrals.l3}</p>
-                        <p class="text-xs text-text-secondary">friends</p>
+                `;
+            } else {
+                resultText = `
+                    <div style="color: #ff4444; font-size: 1.5rem; font-weight: bold;">😔 YOU LOST</div>
+                    <div style="margin: 10px 0;">
+                        Winning Color: ${colorEmoji[outcome.winningColor]} ${outcome.winningColor.toUpperCase()}
+                    </div>
+                    <div style="color: #ff4444; font-size: 1.2rem;">
+                        Lost: ${outcome.betAmount.toFixed(2)} EC
                     </div>
                 `;
             }
             
-            handleGenerateTasks() {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback();
-                
-                this.generateDefaultTasks();
-                this.updateTasksDisplay();
-                this.saveUserData();
-                
-                this.showModal('✨ New Tasks!', 'Fresh tasks have been generated. Complete them to earn EC!', 'green');
-            }
+            resultDiv.innerHTML = resultText;
+            resultDiv.style.display = 'block';
+        }
+
+        function loadCryptoData() {
+            const cryptos = [
+                { id: 'ton', name: 'TON', icon: '💎', rate: 2.45 },
+                { id: 'usdt', name: 'USDT TRC20', icon: '💵', rate: 1.00 },
+                { id: 'btc', name: 'Bitcoin', icon: '₿', rate: 45000 },
+                { id: 'eth', name: 'Ethereum', icon: '⟠', rate: 2500 },
+                { id: 'bnb', name: 'BNB', icon: '🔶', rate: 650 },
+                { id: 'ltc', name: 'Litecoin', icon: 'Ł', rate: 85 }
+            ];
             
-            handleShareReferral() {
-                this.sounds.click.triggerAttackRelease('C5', '8n');
-                this.hapticFeedback();
-                
-                const link = this.dom.referralLink.value;
-                const username = this.state.user?.first_name || 'Player';
-                
-                const message = `🎰 Hey! I'm playing this awesome Neon Roll casino game and winning big! 💰
+            const cryptoGrid = document.getElementById('crypto-grid');
+            cryptoGrid.innerHTML = '';
+            
+            cryptos.forEach(crypto => {
+                const cryptoCard = document.createElement('div');
+                cryptoCard.className = 'crypto-card';
+                cryptoCard.innerHTML = `
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 2rem; margin-right: 10px;">${crypto.icon}</span>
+                        <div>
+                            <div style="font-weight: bold;">${crypto.name}</div>
+                            <div style="opacity: 0.7; font-size: 0.9rem;">1 = ${crypto.rate} EC</div>
+                        </div>
+                    </div>
+                    <button class="neon-button" onclick="showDeposit('${crypto.id}')" style="width: 100%;">
+                        Deposit ${crypto.name}
+                    </button>
+                `;
+                cryptoGrid.appendChild(cryptoCard);
+            });
+        }
 
-Join me and get a welcome bonus! 🎁
+        function loadTasks() {
+            const tasks = [
+                { id: 'daily_win', title: 'Win any game', reward: 25, progress: 0, target: 1 },
+                { id: 'daily_bet', title: 'Place 10 bets', reward: 20, progress: 0, target: 10 },
+                { id: 'daily_wager', title: 'Wager 100 EC', reward: 30, progress: 0, target: 100 }
+            ];
+            
+            const tasksContainer = document.getElementById('tasks-container');
+            tasksContainer.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.innerHTML = `
+                    <div>
+                        <div style="font-weight: bold;">${task.title}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(task.progress / task.target) * 100}%"></div>
+                        </div>
+                        <div style="font-size: 0.9rem; opacity: 0.7;">${task.progress}/${task.target}</div>
+                    </div>
+                    <div style="color: #00ff80; font-weight: bold;">
+                        ${task.reward} EC
+                    </div>
+                `;
+                tasksContainer.appendChild(taskItem);
+            });
+        }
 
-${link}
+        function copyReferralLink() {
+            const referralLink = document.getElementById('referral-link').textContent;
+            navigator.clipboard.writeText(referralLink).then(() => {
+                alert('📋 Referral link copied to clipboard!');
+            }).catch(() => {
+                alert('❌ Failed to copy link');
+            });
+        }
 
-Let's roll together! 🚀`;
-                
-                this.showModal('📱 Share this message!', message.replace(/\n/g, '<br>'), 'purple', 8000);
+        function showDeposit(cryptoId) {
+            // This would normally show a deposit modal
+            alert(`💰 Deposit ${cryptoId.toUpperCase()} - Feature coming soon!`);
+        }
+
+        function createParticles() {
+            const particles = document.querySelector('.bg-particles');
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = Math.random() * 4 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.background = '#00ff80';
+                particle.style.borderRadius = '50%';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animation = `pulse ${Math.random() * 3 + 2}s infinite`;
+                particles.appendChild(particle);
             }
         }
 
-        // Initialize the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            const app = new CasinoApp();
-            app.init();
-        });
+        // Update jackpot amount periodically
+        setInterval(() => {
+            const jackpotElement = document.getElementById('jackpot-amount');
+            const currentAmount = parseInt(jackpotElement.textContent.replace(',', ''));
+            const newAmount = currentAmount + Math.floor(Math.random() * 100);
+            jackpotElement.textContent = newAmount.toLocaleString();
+        }, 5000);
     </script>
 </body>
 </html>

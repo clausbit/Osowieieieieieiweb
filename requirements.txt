@@ -1,6 +1,243 @@
-aiogram==3.4.1
+# NEON CASINO - PRODUCTION REQUIREMENTS
+# =============================================================================
+
+# Core Telegram Bot Framework
+aiogram==3.10.0
+aiohttp==3.8.6
+aiosignal==1.3.1
+async-timeout==4.0.3
+attrs==23.1.0
+certifi==2023.7.22
+charset-normalizer==3.3.2
+frozenlist==1.4.0
+idna==3.4
+magic-filter==1.0.12
+multidict==6.0.4
+pydantic==2.4.2
+pydantic-core==2.10.1
+typing-extensions==4.8.0
+yarl==1.9.3
+
+# Firebase Admin SDK
 firebase-admin==6.4.0
-python-dotenv==1.0.0
-aiohttp==3.9.1
-mnemonic==0.20
+google-api-core==2.12.0
+google-api-python-client==2.108.0
+google-auth==2.23.4
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+google-cloud-core==2.3.3
+google-cloud-firestore==2.13.1
+google-cloud-storage==2.10.0
+google-crc32c==1.5.0
+google-resumable-media==2.6.0
+googleapis-common-protos==1.61.0
+grpcio==1.59.2
+grpcio-status==1.59.2
+protobuf==4.25.0
+pyasn1==0.5.0
+pyasn1-modules==0.3.0
+rsa==4.9
+six==1.16.0
+cachetools==5.3.2
+httplib2==0.22.0
+requests==2.31.0
+urllib3==2.0.7
+uritemplate==4.1.1
+pyparsing==3.1.1
+
+# Cryptocurrency Libraries
+mnemonic==0.21
+bip32==3.4
+bip39==1.0.0
 base58==2.1.1
+ecdsa==0.18.0
+secp256k1==0.21.3
+cryptography==41.0.7
+pycryptodome==3.19.0
+coincurve==18.0.0
+pysha3==1.0.2
+eth-hash==0.6.0
+eth-utils==2.3.0
+eth-keys==0.4.0
+bitstring==4.1.4
+hashlib-compat==0.1.0
+
+# Security and Encryption
+pyotp==2.9.0
+passlib==1.7.4
+bcrypt==4.1.1
+argon2-cffi==23.1.0
+argon2-cffi-bindings==21.2.0
+cffi==1.16.0
+pycparser==2.21
+
+# Data Processing and Utilities
+python-dateutil==2.8.2
+pytz==2023.3.post1
+numpy==1.24.4
+pandas==2.1.3
+lxml==4.9.3
+beautifulsoup4==4.12.2
+soupsieve==2.5
+html5lib==1.1
+webencodings==0.5.1
+bleach==6.1.0
+
+# HTTP and Web
+httpx==0.25.2
+httpcore==1.0.2
+h11==0.14.0
+sniffio==1.3.0
+anyio==4.0.0
+click==8.1.7
+itsdangerous==2.1.2
+jinja2==3.1.2
+markupsafe==2.1.3
+werkzeug==3.0.1
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# Database and Storage
+redis==5.0.1
+pymongo==4.6.0
+motor==3.3.2
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+mysql-connector-python==8.2.0
+sqlite3==0.0.0
+
+# Logging and Monitoring
+loguru==0.7.2
+structlog==23.2.0
+colorlog==6.8.0
+rich==13.7.0
+python-json-logger==2.0.7
+prometheus-client==0.19.0
+psutil==5.9.6
+
+# Configuration Management
+python-dotenv==1.0.0
+pyyaml==6.0.1
+toml==0.10.2
+configparser==6.0.0
+python-decouple==3.8
+
+# Async and Concurrency
+asyncio==3.4.3
+asyncpg==0.29.0
+aiopg==1.4.0
+aiomysql==0.2.0
+aioredis==2.0.1
+aiocache==0.12.2
+celery==5.3.4
+kombu==5.3.4
+billiard==4.2.0
+vine==5.1.0
+amqp==5.2.0
+
+# Scientific Computing
+scipy==1.11.4
+matplotlib==3.8.2
+plotly==5.17.0
+seaborn==0.13.0
+scikit-learn==1.3.2
+joblib==1.3.2
+threadpoolctl==3.2.0
+
+# Image Processing
+pillow==10.1.0
+imageio==2.31.6
+opencv-python==4.8.1.78
+
+# Development and Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+mock==5.1.0
+coverage==7.3.2
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+isort==5.12.0
+pre-commit==3.5.0
+
+# Performance and Optimization
+ujson==5.8.0
+orjson==3.9.10
+cython==3.0.6
+numba==0.58.1
+fastapi==0.104.1
+uvicorn==0.24.0
+starlette==0.27.0
+
+# Blockchain and Web3
+web3==6.11.3
+eth-account==0.10.0
+eth-abi==4.2.1
+eth-typing==3.5.2
+hexbytes==0.3.1
+rlp==3.0.0
+cytoolz==0.12.2
+toolz==0.12.0
+parsimonious==0.10.0
+websockets==12.0
+aiofiles==23.2.1
+
+# Network and Communication
+pycurl==7.45.2
+paramiko==3.4.0
+fabric==3.2.2
+invoke==2.2.0
+dnspython==2.4.2
+netaddr==0.9.0
+netifaces==0.11.0
+scapy==2.5.0
+
+# Time and Scheduling
+schedule==1.2.0
+apscheduler==3.10.4
+croniter==1.4.1
+python-crontab==3.0.0
+
+# Data Serialization
+msgpack==1.0.7
+pickle-mixin==1.0.2
+dill==0.3.7
+cloudpickle==3.0.0
+jsonschema==4.20.0
+jsonref==1.1.0
+jsonpointer==2.4
+jsonpath-ng==1.6.0
+
+# Caching and Memory
+diskcache==5.6.3
+pymemcache==4.0.0
+python-memcached==1.62
+dogpile.cache==1.2.2
+
+# Rate Limiting and Throttling
+ratelimit==2.2.1
+slowapi==0.1.9
+limits==3.6.0
+hiredis==2.2.3
+
+# Validation and Parsing
+marshmallow==3.20.1
+cerberus==1.3.5
+voluptuous==0.14.1
+schema==0.7.5
+validators==0.22.0
+
+# Monitoring and Health Checks
+healthcheck==1.3.3
+py-healthcheck==1.10.1
+
+# Documentation
+sphinx==7.2.6
+sphinx-rtd-theme==1.3.0
+
+# Environment and System
+python-magic==0.4.27
+python-systemd==235
+systemd-python==235
