@@ -70,113 +70,58 @@
         
         .text-glow { text-shadow: 0 0 5px var(--accent-cyan), 0 0 10px var(--accent-cyan); }
         
-        /* Enhanced Horizontal Roller Design */
+        /* Optimized Roller */
         #roller-container {
-            perspective: 1500px;
-            background: 
-                radial-gradient(ellipse at center, rgba(123, 82, 255, 0.2) 0%, transparent 60%),
-                linear-gradient(90deg, rgba(0,255,255,0.1) 0%, transparent 20%, transparent 80%, rgba(255,0,199,0.1) 100%);
+            perspective: 1000px;
+            background: radial-gradient(ellipse at center, rgba(123, 82, 255, 0.15) 0%, transparent 70%);
             position: relative;
             overflow: hidden;
-            border-radius: 20px;
+            border-radius: 16px;
             contain: layout style paint;
-            border: 2px solid rgba(123, 82, 255, 0.3);
-            backdrop-filter: blur(8px);
         }
         
         #roller-container::before {
             content: ''; 
             position: absolute; 
-            top: 0; 
+            top: -10px; 
             left: 50%; 
             transform: translateX(-50%);
-            width: 6px; 
-            height: 100%; 
-            background: linear-gradient(to bottom, 
-                transparent 0%, 
-                var(--accent-cyan) 20%, 
-                rgba(255,255,255,0.8) 50%, 
-                var(--accent-pink) 80%, 
-                transparent 100%);
-            box-shadow: 
-                0 0 20px var(--accent-cyan),
-                0 0 40px rgba(0,255,255,0.3);
+            width: 4px; 
+            height: calc(100% + 20px); 
+            background: linear-gradient(to bottom, transparent, var(--accent-cyan), transparent);
+            box-shadow: 0 0 15px var(--accent-cyan);
             z-index: 10; 
-            transition: all 0.3s ease;
-            border-radius: 3px;
-        }
-        
-        #roller-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, 
-                rgba(13,6,26,0.8) 0%, 
-                transparent 15%, 
-                transparent 85%, 
-                rgba(13,6,26,0.8) 100%);
-            pointer-events: none;
-            z-index: 5;
+            transition: all 0.3s;
         }
         
         #roller { 
-            transition: transform 4.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            transition: transform 4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
             transform-style: preserve-3d; 
             display: flex;
             will-change: transform;
             height: 100%;
             align-items: center;
             contain: layout style paint;
-            padding: 0 15px;
         }
         
         .roller-item {
             flex-shrink: 0; 
-            width: 70px; 
-            height: 70px; 
-            border-radius: 16px;
-            transform: rotateY(8deg) scale(0.95); 
-            box-shadow: 
-                0 8px 25px rgba(0,0,0,0.4),
-                inset 0 2px 4px rgba(255,255,255,0.1);
-            border: 3px solid rgba(255,255,255,0.15);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin: 0 4px;
+            width: 60px; 
+            height: 60px; 
+            border-radius: 10px;
+            transform: rotateY(10deg); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s ease;
+            margin: 0 3px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 900;
+            font-weight: bold;
             color: white;
-            text-shadow: 
-                0 0 8px rgba(0,0,0,0.9),
-                0 2px 4px rgba(0,0,0,0.6);
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
             position: relative;
             contain: layout style paint;
-            backdrop-filter: blur(2px);
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .roller-item::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: 18px;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .roller-item:hover::before {
-            opacity: 1;
         }
         
         .neon-button {
@@ -957,8 +902,6 @@
                             { 
                                 id: 'ton', 
                                 name: 'TON', 
-                                fullName: 'Toncoin',
-                                network: 'TON Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/11419.png',
                                 rate: 2.45,
                                 minDeposit: 1
@@ -966,8 +909,6 @@
                             { 
                                 id: 'usdt', 
                                 name: 'USDT TRC20', 
-                                fullName: 'Tether USD (TRC20)',
-                                network: 'TRON Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
                                 rate: 1.00,
                                 minDeposit: 5
@@ -975,8 +916,6 @@
                             { 
                                 id: 'tron', 
                                 name: 'TRON', 
-                                fullName: 'TRON',
-                                network: 'TRON Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1958.png',
                                 rate: 0.15,
                                 minDeposit: 50
@@ -984,8 +923,6 @@
                             { 
                                 id: 'bnb', 
                                 name: 'BNB BEP20', 
-                                fullName: 'Binance Coin (BEP20)',
-                                network: 'BSC Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png',
                                 rate: 650.00,
                                 minDeposit: 0.01
@@ -993,35 +930,20 @@
                             { 
                                 id: 'btc', 
                                 name: 'Bitcoin', 
-                                fullName: 'Bitcoin',
-                                network: 'Bitcoin Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1.png',
                                 rate: 45000,
                                 minDeposit: 0.001
                             },
                             { 
-                                id: 'eth', 
-                                name: 'Ethereum', 
-                                fullName: 'Ethereum',
-                                network: 'Ethereum Network',
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-                                rate: 2500.00,
-                                minDeposit: 0.01
-                            },
-                            { 
                                 id: 'doge', 
                                 name: 'Dogecoin', 
-                                fullName: 'Dogecoin',
-                                network: 'Dogecoin Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/74.png',
                                 rate: 0.35,
                                 minDeposit: 10
                             },
                             { 
                                 id: 'ltc', 
-                                name: 'Litecoin', 
-                                fullName: 'Litecoin',
-                                network: 'Litecoin Network',
+                                name: 'LiteCoin', 
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2.png',
                                 rate: 85.00,
                                 minDeposit: 0.1
@@ -1029,38 +951,9 @@
                             { 
                                 id: 'usdc', 
                                 name: 'USDC ERC20', 
-                                fullName: 'USD Coin (ERC20)',
-                                network: 'Ethereum Network',
                                 icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png',
                                 rate: 1.00,
                                 minDeposit: 5
-                            },
-                            { 
-                                id: 'ada', 
-                                name: 'Cardano', 
-                                fullName: 'Cardano',
-                                network: 'Cardano Network',
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2010.png',
-                                rate: 0.45,
-                                minDeposit: 5
-                            },
-                            { 
-                                id: 'sol', 
-                                name: 'Solana', 
-                                fullName: 'Solana',
-                                network: 'Solana Network',
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png',
-                                rate: 95.00,
-                                minDeposit: 0.1
-                            },
-                            { 
-                                id: 'xrp', 
-                                name: 'XRP', 
-                                fullName: 'XRP',
-                                network: 'XRP Ledger',
-                                icon: 'https://s2.coinmarketcap.com/static/img/coins/64x64/52.png',
-                                rate: 0.55,
-                                minDeposit: 20
                             },
                         ],
                         withdraw: [
@@ -1069,13 +962,9 @@
                             { id: 'tron', name: 'TRON', min: 15 },
                             { id: 'bnb', name: 'BNB BEP20', min: 29 },
                             { id: 'btc', name: 'Bitcoin', min: 100 },
-                            { id: 'eth', name: 'Ethereum', min: 85 },
                             { id: 'doge', name: 'Dogecoin', min: 41 },
-                            { id: 'ltc', name: 'Litecoin', min: 15 },
+                            { id: 'ltc', name: 'LiteCoin', min: 15 },
                             { id: 'usdc', name: 'USDC ERC20', min: 45 },
-                            { id: 'ada', name: 'Cardano', min: 35 },
-                            { id: 'sol', name: 'Solana', min: 25 },
-                            { id: 'xrp', name: 'XRP', min: 30 },
                         ]
                     },
                 };
@@ -1168,12 +1057,12 @@
                             this.dom.userAvatarPlaceholder.classList.add('hidden');
                         }
                         
-                        this.dom.referralLink.value = `https://t.me/neonroll_casino_bot?start=${user.id}`;
+                        this.dom.referralLink.value = `https://t.me/YourBotName?start=${user.id}`;
                         
                     } else {
                         this.dom.username.textContent = 'Test Player';
                         this.dom.userId.textContent = 'ID: 123456789';
-                        this.dom.referralLink.value = 'https://t.me/neonroll_casino_bot?start=123456789';
+                        this.dom.referralLink.value = 'https://t.me/YourBotName?start=123456789';
                     }
                 } catch (e) {
                     console.error("Failed to get user info:", e);
@@ -1549,23 +1438,8 @@
                         this.sounds.win.triggerAttackRelease('C5', '4n');
                     }
                     
-                    // Update win streaks
-                    this.state.currentWinStreak = (this.state.currentWinStreak || 0) + 1;
-                    this.state.maxWinStreak = Math.max(this.state.maxWinStreak || 0, this.state.currentWinStreak);
-                    
-                    // Update biggest win
-                    if (totalWinnings > (this.state.biggestWin || 0)) {
-                        this.state.biggestWin = totalWinnings;
-                    }
-                    
-                    // Update task progress
                     this.updateTaskProgress('win', 1);
-                    this.updateTaskProgress('win_color', totalWinnings, { color: winner.color });
-                    this.updateTaskProgress('big_win', totalWinnings);
-                    this.updateTaskProgress('win_streak', this.state.currentWinStreak, { streak: this.state.currentWinStreak });
                 } else {
-                    // Reset win streak on loss
-                    this.state.currentWinStreak = 0;
                     const totalLost = Object.values(this.state.myBets).reduce((a, b) => a + b, 0);
                     if(totalLost > 0) {
                        this.showModal('💸 You Lost', `The winning color was ${winner.color.toUpperCase()}. Better luck next time!`, 'red');
@@ -1607,8 +1481,7 @@
                 btn.style.transform = 'scale(0.95)';
                 setTimeout(() => btn.style.transform = 'scale(1)', 200);
                 
-                this.updateTaskProgress('bet_amount', amount);
-                this.updateTaskProgress('bet_color', amount, { color: color });
+                this.updateTaskProgress('bet', amount);
                 this.updateTaskProgress('total_bets', this.state.totalBetsPlaced);
             }
 
@@ -1823,90 +1696,66 @@
                 this.dom.playersBets.insertAdjacentHTML('afterbegin', betHtml);
             }
 
-                    // Generate wallet address from seed phrase (improved with proper seed integration)
-        generateWalletAddress(cryptoId, userId) {
-            // Use proper seed phrase integration like the backend
-            const masterSeed = "nothing ridge argue engine loan boat dry radar wink universe remind fence";
-            const userSpecificSeed = masterSeed + "_user_" + userId + "_" + cryptoId;
-            const hash = this.simpleHash(userSpecificSeed);
-            
-            const addressFormats = {
-                'ton': () => 'UQ' + hash.substring(0, 46),
-                'usdt': () => 'T' + hash.substring(0, 33),
-                'tron': () => 'T' + hash.substring(0, 33),
-                'bnb': () => '0x' + hash.substring(0, 40),
-                'btc': () => 'bc1q' + hash.substring(0, 39),
-                'eth': () => '0x' + hash.substring(0, 40),
-                'doge': () => 'D' + hash.substring(0, 33),
-                'ltc': () => 'ltc1q' + hash.substring(0, 39),
-                'usdc': () => '0x' + hash.substring(0, 40),
-                'ada': () => 'addr1' + hash.substring(0, 56),
-                'sol': () => hash.substring(0, 44),
-                'xrp': () => 'r' + hash.substring(0, 33),
-            };
-            
-            return addressFormats[cryptoId] ? addressFormats[cryptoId]() : hash.substring(0, 34);
-        }
-
-        simpleHash(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash; // Convert to 32bit integer
+            // Generate wallet address from seed phrase (simplified simulation)
+            generateWalletAddress(cryptoId, seedPhrase) {
+                // This is a simplified simulation - in real implementation you would use proper crypto libraries
+                const hash = this.simpleHash(seedPhrase + cryptoId);
+                
+                const addressFormats = {
+                    'ton': () => 'UQ' + hash.substring(0, 46),
+                    'usdt': () => 'T' + hash.substring(0, 33),
+                    'tron': () => 'T' + hash.substring(0, 33),
+                    'bnb': () => '0x' + hash.substring(0, 40),
+                    'btc': () => 'bc1q' + hash.substring(0, 39),
+                    'doge': () => 'D' + hash.substring(0, 33),
+                    'ltc': () => 'ltc1q' + hash.substring(0, 39),
+                    'usdc': () => '0x' + hash.substring(0, 40),
+                };
+                
+                return addressFormats[cryptoId] ? addressFormats[cryptoId]() : hash.substring(0, 34);
             }
-            return Math.abs(hash).toString(16).padStart(64, '0');
-        }
+
+            simpleHash(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                return Math.abs(hash).toString(16).padStart(48, '0');
+            }
 
             renderCryptoOptions() {
-                // Deposit options with enhanced display
+                // Deposit options
                 this.dom.depositOptions.innerHTML = this.config.crypto.deposit.map(c => `
-                    <button data-crypto-id="${c.id}" class="deposit-option-btn crypto-card glassmorphism p-4 rounded-xl flex items-center gap-4 neon-button w-full transition-all duration-200 hover:scale-105">
-                        <img src="${c.icon}" class="w-12 h-12 rounded-lg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iIzAwRkZGRiIvPgo8dGV4dCB4PSIyNCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+JCE8L3RleHQ+Cjwvc3ZnPgo=';">
+                    <button data-crypto-id="${c.id}" class="deposit-option-btn crypto-card glassmorphism p-4 rounded-xl flex items-center gap-4 neon-button w-full">
+                        <img src="${c.icon}" class="w-12 h-12 rounded-lg" onerror="this.src='/placeholder.svg?height=48&width=48';">
                         <div class="flex-grow text-left">
-                            <div class="font-bold text-lg text-white">${c.name}</div>
-                            <div class="text-sm text-text-secondary">
-                                <i class="fas fa-exchange-alt text-cyan-400"></i> 1 ${c.name.split(' ')[0]} ≈ ${c.rate} EC
-                            </div>
-                            <div class="text-xs text-text-secondary">
-                                <i class="fas fa-network-wired text-purple-400"></i> ${c.network}
-                            </div>
+                            <div class="font-bold text-lg">${c.name}</div>
+                            <div class="text-sm text-text-secondary">Rate: 1 ${c.name.split(' ')[0]} ≈ ${c.rate} EC</div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-sm font-semibold text-green-400">Min: ${c.minDeposit}</div>
-                            <i class="fas fa-arrow-right text-accent-cyan text-xl mt-1"></i>
-                        </div>
+                        <i class="fas fa-arrow-right text-accent-cyan text-xl"></i>
                     </button>
                 `).join('');
                 
-                // Withdraw options with enhanced display
+                // Withdraw options
                 this.dom.withdrawOptions.innerHTML = this.config.crypto.withdraw.map(c => {
                     const depositCrypto = this.config.crypto.deposit.find(d => d.id === c.id);
                     return `
-                        <div class="crypto-card glassmorphism p-4 rounded-xl flex items-center gap-4 transition-all duration-200 hover:border-cyan-400">
-                            <img src="${depositCrypto?.icon || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iOCIgZmlsbD0iI0ZGMDBDNyIvPgo8dGV4dCB4PSIyNCIgeT0iMzAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iI0ZGRkZGRiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+JCE8L3RleHQ+Cjwvc3ZnPgo='}" class="w-12 h-12 rounded-lg">
+                        <div class="crypto-card glassmorphism p-4 rounded-xl flex items-center gap-4">
+                            <img src="${depositCrypto?.icon || '/placeholder.svg?height=48&width=48'}" class="w-12 h-12 rounded-lg">
                             <div class="flex-grow text-left">
-                                <div class="font-bold text-lg text-white">${c.name}</div>
-                                <div class="text-sm text-text-secondary">
-                                    <i class="fas fa-coins text-yellow-400"></i> Min Withdrawal: ${c.min} EC
-                                </div>
-                                <div class="text-xs text-text-secondary">
-                                    <i class="fas fa-clock text-blue-400"></i> Processing: 1-24 hours
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <i class="fas fa-paper-plane text-pink-400 text-2xl"></i>
+                                <div class="font-bold text-lg">${c.name}</div>
+                                <div class="text-sm text-text-secondary">Min: ${c.min} EC</div>
                             </div>
                         </div>
                     `;
                 }).join('');
                 
-                // Enhanced withdraw currency options
                 this.dom.withdrawCurrency.innerHTML = this.config.crypto.withdraw.map(c => 
                     `<option value="${c.id}">${c.name} (Min: ${c.min} EC)</option>`
                 ).join('');
                 
-                // Add event listeners for deposit buttons
                 document.querySelectorAll('.deposit-option-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => this.showDepositDetails(e.currentTarget.dataset.cryptoId));
                 });
@@ -1918,28 +1767,21 @@
                 const crypto = this.config.crypto.deposit.find(c => c.id === cryptoId);
                 if (!crypto) return;
                 
-                // Generate address using user ID and proper seed phrase integration
-                const userId = this.state.user?.id || 123456789;
-                const address = this.generateWalletAddress(cryptoId, userId);
+                // Generate address from seed phrase (this would come from config in real implementation)
+                const seedPhrase = "your seed phrase here"; // This should be from config
+                const address = this.generateWalletAddress(cryptoId, seedPhrase);
                 
                 this.dom.depositDetailsTitle.textContent = `Deposit ${crypto.name}`;
                 this.dom.walletAddress.value = address;
                 this.dom.exchangeRate.textContent = `1 ${crypto.name.split(' ')[0]} ≈ ${crypto.rate} EC`;
-                
-                // Show network information
-                const networkInfo = document.createElement('p');
-                networkInfo.className = 'text-sm text-text-secondary mt-2';
-                networkInfo.innerHTML = `<i class="fas fa-network-wired text-cyan-400"></i> Network: ${crypto.network}`;
                 
                 try {
                     const qr = qrcode(0, 'M');
                     qr.addData(address);
                     qr.make();
                     this.dom.qrCode.innerHTML = qr.createImgTag(6, 8);
-                    this.dom.qrCode.appendChild(networkInfo);
                 } catch (e) {
                     this.dom.qrCode.innerHTML = '<p class="text-xs text-red-500">Could not generate QR code.</p>';
-                    this.dom.qrCode.appendChild(networkInfo);
                 }
                 
                 this.dom.depositDetailsScreen.classList.remove('hidden');
@@ -2063,132 +1905,42 @@
             }
 
             generateDefaultTasks() {
-                const taskPool = [
-                    // Beginner Tasks
-                    { id: 'first_win', title: 'Win your first round', reward: 15, progress: 0, target: 1, type: 'win', difficulty: 'easy' },
-                    { id: 'place_bet_10', title: 'Place a bet of 10+ EC', reward: 10, progress: 0, target: 1, type: 'bet_amount', minAmount: 10, difficulty: 'easy' },
-                    { id: 'play_3_games', title: 'Play 3 games', reward: 12, progress: 0, target: 3, type: 'games_played', difficulty: 'easy' },
-                    
-                    // Intermediate Tasks
-                    { id: 'place_bet_50', title: 'Place a bet of 50+ EC', reward: 25, progress: 0, target: 1, type: 'bet_amount', minAmount: 50, difficulty: 'medium' },
-                    { id: 'play_10_games', title: 'Play 10 games', reward: 35, progress: 0, target: 10, type: 'games_played', difficulty: 'medium' },
-                    { id: 'win_3_rounds', title: 'Win 3 rounds', reward: 40, progress: 0, target: 3, type: 'win', difficulty: 'medium' },
-                    { id: 'total_bets_100', title: 'Place total bets of 100 EC', reward: 30, progress: 0, target: 100, type: 'total_bets', difficulty: 'medium' },
-                    { id: 'yellow_bet', title: 'Bet on Yellow color', reward: 20, progress: 0, target: 1, type: 'bet_color', color: 'yellow', difficulty: 'medium' },
-                    
-                    // Advanced Tasks
-                    { id: 'place_bet_100', title: 'Place a bet of 100+ EC', reward: 50, progress: 0, target: 1, type: 'bet_amount', minAmount: 100, difficulty: 'hard' },
-                    { id: 'play_25_games', title: 'Play 25 games', reward: 75, progress: 0, target: 25, type: 'games_played', difficulty: 'hard' },
-                    { id: 'win_10_rounds', title: 'Win 10 rounds', reward: 100, progress: 0, target: 10, type: 'win', difficulty: 'hard' },
-                    { id: 'total_bets_500', title: 'Place total bets of 500 EC', reward: 75, progress: 0, target: 500, type: 'total_bets', difficulty: 'hard' },
-                    { id: 'win_yellow', title: 'Win on Yellow color', reward: 150, progress: 0, target: 1, type: 'win_color', color: 'yellow', difficulty: 'hard' },
-                    
-                    // Special Tasks
-                    { id: 'streak_5', title: 'Win 5 games in a row', reward: 200, progress: 0, target: 5, type: 'win_streak', difficulty: 'expert' },
-                    { id: 'big_win', title: 'Win 500+ EC in one round', reward: 300, progress: 0, target: 1, type: 'big_win', minWin: 500, difficulty: 'expert' },
-                    { id: 'daily_login_7', title: 'Login 7 days in a row', reward: 100, progress: 0, target: 7, type: 'daily_login', difficulty: 'expert' },
+                const defaultTasks = [
+                    { id: 'win_round', title: 'Win any round', reward: 15, progress: 0, target: 1, type: 'win' },
+                    { id: 'place_bet_50', title: 'Place a bet over 50 EC', reward: 25, progress: 0, target: 1, type: 'bet_amount' },
+                    { id: 'play_5_games', title: 'Play 5 games', reward: 20, progress: 0, target: 5, type: 'games_played' },
+                    { id: 'total_bets_100', title: 'Place total bets of 100 EC', reward: 30, progress: 0, target: 100, type: 'total_bets' },
+                    { id: 'play_10_games', title: 'Play 10 games', reward: 35, progress: 0, target: 10, type: 'games_played' },
+                    { id: 'win_3_rounds', title: 'Win 3 rounds', reward: 40, progress: 0, target: 3, type: 'win' },
+                    { id: 'total_bets_500', title: 'Place total bets of 500 EC', reward: 75, progress: 0, target: 500, type: 'total_bets' },
                 ];
                 
-                // Filter based on user level and completed tasks
-                const userLevel = this.getUserLevel();
-                const availableTasks = taskPool.filter(task => {
-                    if (this.state.completedTasks.includes(task.id)) return false;
-                    
-                    // Filter by difficulty based on user level
-                    if (userLevel === 1 && task.difficulty !== 'easy') return false;
-                    if (userLevel === 2 && !['easy', 'medium'].includes(task.difficulty)) return false;
-                    if (userLevel >= 3 && task.difficulty === 'expert' && Math.random() < 0.3) return false;
-                    
-                    return true;
-                });
-                
-                // Select random tasks (max 6 active at once)
-                const shuffled = availableTasks.sort(() => 0.5 - Math.random());
-                this.state.tasks = shuffled.slice(0, 6);
-                
-                console.log(`Generated ${this.state.tasks.length} tasks for user level ${userLevel}`);
-            }
-            
-            getUserLevel() {
-                const gamesPlayed = this.state.gamesPlayed || 0;
-                const totalBets = this.state.totalBetsPlaced || 0;
-                
-                if (gamesPlayed < 10 && totalBets < 50) return 1;   // Beginner
-                if (gamesPlayed < 50 && totalBets < 500) return 2;  // Intermediate  
-                if (gamesPlayed < 200 && totalBets < 2000) return 3; // Advanced
-                return 4; // Expert
+                this.state.tasks = defaultTasks.filter(task => 
+                    !this.state.completedTasks.includes(task.id)
+                );
             }
 
-            updateTaskProgress(type, value, extraData = {}) {
+            updateTaskProgress(type, value) {
                 let updated = false;
                 
                 this.state.tasks.forEach(task => {
                     if (task.type === type) {
-                        let shouldUpdate = false;
-                        
-                        switch (type) {
-                            case 'bet_amount':
-                                if (value >= (task.minAmount || 50)) {
-                                    task.progress = Math.min(task.progress + 1, task.target);
-                                    shouldUpdate = true;
-                                }
-                                break;
-                                
-                            case 'bet_color':
-                                if (extraData.color === task.color) {
-                                    task.progress = Math.min(task.progress + 1, task.target);
-                                    shouldUpdate = true;
-                                }
-                                break;
-                                
-                            case 'win':
-                                task.progress = Math.min(task.progress + 1, task.target);
-                                shouldUpdate = true;
-                                break;
-                                
-                            case 'win_color':
-                                if (extraData.color === task.color) {
-                                    task.progress = Math.min(task.progress + 1, task.target);
-                                    shouldUpdate = true;
-                                }
-                                break;
-                                
-                            case 'big_win':
-                                if (value >= (task.minWin || 500)) {
-                                    task.progress = Math.min(task.progress + 1, task.target);
-                                    shouldUpdate = true;
-                                }
-                                break;
-                                
-                            case 'win_streak':
-                                if (extraData.streak >= task.target) {
-                                    task.progress = task.target;
-                                    shouldUpdate = true;
-                                }
-                                break;
-                                
-                            case 'games_played':
-                                task.progress = Math.min(this.state.gamesPlayed, task.target);
-                                shouldUpdate = true;
-                                break;
-                                
-                            case 'total_bets':
-                                task.progress = Math.min(this.state.totalBetsPlaced, task.target);
-                                shouldUpdate = true;
-                                break;
-                                
-                            case 'daily_login':
-                                task.progress = Math.min(this.state.dailyLoginStreak || 1, task.target);
-                                shouldUpdate = true;
-                                break;
+                        if (type === 'bet_amount' && value >= 50) {
+                            task.progress = Math.min(task.progress + 1, task.target);
+                            updated = true;
+                        } else if (type === 'win') {
+                            task.progress = Math.min(task.progress + 1, task.target);
+                            updated = true;
+                        } else if (type === 'games_played') {
+                            task.progress = Math.min(this.state.gamesPlayed, task.target);
+                            updated = true;
+                        } else if (type === 'total_bets') {
+                            task.progress = Math.min(this.state.totalBetsPlaced, task.target);
+                            updated = true;
                         }
                         
-                        if (shouldUpdate) {
-                            updated = true;
-                            
-                            if (task.progress >= task.target && !this.state.completedTasks.includes(task.id)) {
-                                this.completeTask(task);
-                            }
+                        if (task.progress >= task.target && !this.state.completedTasks.includes(task.id)) {
+                            this.completeTask(task);
                         }
                     }
                 });
