@@ -1,0 +1,6 @@
+aiogram==3.4.1
+firebase-admin==6.4.0
+python-dotenv==1.0.0
+aiohttp==3.9.1
+mnemonic==0.20
+base58==2.1.1
