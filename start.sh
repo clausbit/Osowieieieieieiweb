@@ -1,354 +1,628 @@
 #!/bin/bash
-set -e
+# =============================================================================
+# NEON CASINO - PRODUCTION DEPLOYMENT SCRIPT
+# =============================================================================
 
-# ==============================================================================
-# ======================== SETTINGS (CHANGE IF NEEDED) =======================
-# ==============================================================================
+set -euo pipefail  # Exit on error, undefined variables, pipe failures
 
-# 1. Your domain
-DOMAIN_NAME="agrobmin.com.ua"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+NC='\033[0m' # No Color
 
-# 2. Your certificate file names (should be in the same folder as this script)
-CERT_FILE="sertificat.pem"
-KEY_FILE="sertificat.key"
+# Configuration
+APP_NAME="neon-casino"
+APP_DIR="/opt/neon-casino"
+LOG_DIR="/var/log/neon-casino"
+PID_FILE="/var/run/neon-casino.pid"
+USER="neon-casino"
+GROUP="neon-casino"
+VENV_DIR="$APP_DIR/venv"
+PYTHON_VERSION="3.11"
+BACKUP_DIR="/opt/neon-casino-backups"
+NGINX_CONF="/etc/nginx/sites-available/neon-casino"
+SYSTEMD_SERVICE="/etc/systemd/system/neon-casino.service"
 
-# 3. Your bot token (replace with real one)
-BOT_TOKEN="7967948563:AAEcl-6mW5kd4jaqjsRIqnv34egBWmh1LiI"
+# Banner
+echo -e "${PURPLE}"
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║                    🎰 NEON CASINO 🎰                         ║"
+echo "║              Enterprise Production Deployment                  ║"
+echo "║                   v2.0.0 - Epic Edition                      ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
+echo -e "${NC}"
 
-# ==============================================================================
-# =================== SCRIPT RUNS AUTOMATICALLY FROM HERE =====================
-# ==============================================================================
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}[INFO]${NC} $1"
+}
 
-echo "--- [1/7] Checking certificate files ---"
-if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
-    echo "Error: Certificate files '$CERT_FILE' and/or '$KEY_FILE' not found."
-    echo "Please make sure they are in the same folder as this script."
-    exit 1
-fi
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
 
-echo "--- [2/7] Installing Python dependencies ---"
-# Update system and install Python
-sudo apt update
-sudo apt install -y python3 python3-pip python3-venv nginx python3-dev build-essential
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
-echo "--- [3/7] Setting up Nginx web server with your SSL certificates ---"
-# Create directories for website and SSL
-sudo mkdir -p /var/www/${DOMAIN_NAME}
-sudo mkdir -p /etc/nginx/ssl
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
 
-# Copy your certificates to system folder
-sudo cp "./${CERT_FILE}" "/etc/nginx/ssl/${CERT_FILE}"
-sudo cp "./${KEY_FILE}" "/etc/nginx/ssl/${KEY_FILE}"
+print_header() {
+    echo -e "${CYAN}[STEP]${NC} $1"
+}
 
-# Set correct permissions (very important for security)
-sudo chmod 600 "/etc/nginx/ssl/${KEY_FILE}"
-sudo chmod 644 "/etc/nginx/ssl/${CERT_FILE}"
+# Check if running as root
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        print_error "This script must be run as root"
+        exit 1
+    fi
+}
 
-# Copy game file
-sudo cp ./index.html /var/www/${DOMAIN_NAME}/index.html
-sudo chown -R www-data:www-data /var/www/${DOMAIN_NAME}
+# System updates and prerequisites
+install_system_dependencies() {
+    print_header "Installing system dependencies..."
+    
+    # Update system
+    apt-get update -y
+    apt-get upgrade -y
+    
+    # Install essential packages
+    apt-get install -y \
+        python3.11 \
+        python3.11-venv \
+        python3.11-dev \
+        python3-pip \
+        build-essential \
+        libssl-dev \
+        libffi-dev \
+        libbz2-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        libncursesw5-dev \
+        xz-utils \
+        tk-dev \
+        libxml2-dev \
+        libxmlsec1-dev \
+        libffi-dev \
+        liblzma-dev \
+        nginx \
+        redis-server \
+        postgresql \
+        postgresql-contrib \
+        ufw \
+        fail2ban \
+        htop \
+        iotop \
+        curl \
+        wget \
+        git \
+        vim \
+        tmux \
+        supervisor \
+        logrotate \
+        rsync \
+        zip \
+        unzip \
+        certbot \
+        python3-certbot-nginx
+    
+    print_success "System dependencies installed"
+}
 
-# Create new, complete Nginx configuration for HTTPS
-sudo tee /etc/nginx/sites-available/$DOMAIN_NAME > /dev/null <<EOF
+# Create dedicated user and directories
+setup_user_and_directories() {
+    print_header "Setting up user and directories..."
+    
+    # Create user and group
+    if ! id "$USER" &>/dev/null; then
+        useradd -r -s /bin/false -d "$APP_DIR" "$USER"
+        print_status "Created user: $USER"
+    fi
+    
+    # Create directories
+    mkdir -p "$APP_DIR"
+    mkdir -p "$LOG_DIR"
+    mkdir -p "$BACKUP_DIR"
+    mkdir -p "/etc/neon-casino"
+    
+    # Set permissions
+    chown -R "$USER:$GROUP" "$APP_DIR"
+    chown -R "$USER:$GROUP" "$LOG_DIR"
+    chown -R "$USER:$GROUP" "$BACKUP_DIR"
+    
+    print_success "User and directories configured"
+}
+
+# Install Python dependencies
+install_python_dependencies() {
+    print_header "Installing Python dependencies..."
+    
+    # Copy application files
+    cp -r . "$APP_DIR/"
+    chown -R "$USER:$GROUP" "$APP_DIR"
+    
+    # Create virtual environment
+    sudo -u "$USER" python3.11 -m venv "$VENV_DIR"
+    
+    # Upgrade pip
+    sudo -u "$USER" "$VENV_DIR/bin/pip" install --upgrade pip setuptools wheel
+    
+    # Install dependencies
+    sudo -u "$USER" "$VENV_DIR/bin/pip" install -r "$APP_DIR/requirements.txt"
+    
+    print_success "Python dependencies installed"
+}
+
+# Configure Firebase
+configure_firebase() {
+    print_header "Configuring Firebase..."
+    
+    # Secure Firebase credentials
+    if [ -f "$APP_DIR/neonrollfirebase-service-account.json" ]; then
+        chmod 600 "$APP_DIR/neonrollfirebase-service-account.json"
+        chown "$USER:$GROUP" "$APP_DIR/neonrollfirebase-service-account.json"
+        print_success "Firebase credentials secured"
+    else
+        print_warning "Firebase service account file not found"
+    fi
+}
+
+# Configure Redis
+configure_redis() {
+    print_header "Configuring Redis..."
+    
+    # Redis configuration
+    cat > /etc/redis/redis.conf.d/neon-casino.conf << EOF
+# Neon Casino Redis Configuration
+maxmemory 512mb
+maxmemory-policy allkeys-lru
+save 900 1
+save 300 10
+save 60 10000
+stop-writes-on-bgsave-error yes
+rdbcompression yes
+rdbchecksum yes
+dbfilename neon-casino.rdb
+dir /var/lib/redis
+requirepass neon-casino-redis-$(openssl rand -hex 32)
+EOF
+    
+    # Restart Redis
+    systemctl restart redis-server
+    systemctl enable redis-server
+    
+    print_success "Redis configured"
+}
+
+# Configure PostgreSQL
+configure_postgresql() {
+    print_header "Configuring PostgreSQL..."
+    
+    # Create database and user
+    sudo -u postgres psql << EOF
+CREATE DATABASE neon_casino;
+CREATE USER neon_casino WITH ENCRYPTED PASSWORD 'neon_casino_$(openssl rand -hex 16)';
+GRANT ALL PRIVILEGES ON DATABASE neon_casino TO neon_casino;
+\q
+EOF
+    
+    print_success "PostgreSQL configured"
+}
+
+# Configure Nginx
+configure_nginx() {
+    print_header "Configuring Nginx..."
+    
+    # Create Nginx configuration
+    cat > "$NGINX_CONF" << 'EOF'
 server {
     listen 80;
-    server_name $DOMAIN_NAME;
-    # Redirect all HTTP traffic to HTTPS
-    return 301 https://\$host\$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name $DOMAIN_NAME;
-
-    root /var/www/$DOMAIN_NAME;
-    index index.html;
-
-    # SSL certificate paths
-    ssl_certificate /etc/nginx/ssl/$CERT_FILE;
-    ssl_certificate_key /etc/nginx/ssl/$KEY_FILE;
-
-    # Enhanced SSL security settings
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4;
-    ssl_prefer_server_ciphers on;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-
+    server_name agrobmin.com.ua www.agrobmin.com.ua;
+    
     # Security headers
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-    add_header X-Frame-Options DENY always;
-    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-
-    # Gzip compression
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
-
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' telegram.org; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' wss: https:;" always;
+    
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req zone=api burst=20 nodelay;
+    
+    # Root directory
+    root /opt/neon-casino;
+    index index.html;
+    
+    # Main location
     location / {
-        try_files \$uri \$uri/ =404;
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-        add_header Pragma "no-cache";
-        add_header Expires "0";
+        try_files $uri $uri/ =404;
+        
+        # Cache static files
+        location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 30d;
+            add_header Cache-Control "public, immutable";
+        }
     }
-
-    # Static files caching
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
+    
+    # API proxy (if needed)
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+    
+    # Webhook endpoint
+    location /webhook/ {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # Security
+    location ~ /\. {
+        deny all;
+    }
+    
+    location ~* \.(py|sh|log|conf)$ {
+        deny all;
     }
 }
 EOF
-
-# Activate configuration and restart Nginx
-sudo ln -sfn /etc/nginx/sites-available/$DOMAIN_NAME /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-
-echo "--- [4/7] Setting up Telegram bot ---"
-BOT_DIR="/opt/neon-roll-bot"
-CURRENT_USER=$(whoami)
-
-# Create directory for bot
-sudo mkdir -p $BOT_DIR
-sudo chown -R $CURRENT_USER:$CURRENT_USER $BOT_DIR
-
-# Create Python virtual environment
-python3 -m venv $BOT_DIR/venv
-source $BOT_DIR/venv/bin/activate
-
-# Install dependencies
-$BOT_DIR/venv/bin/pip install --upgrade pip
-
-# Create requirements.txt with all necessary packages
-cat > requirements.txt << 'EOL'
-aiogram==3.2.0
-firebase-admin==6.4.0
-google-cloud-firestore==2.13.1
-python-dateutil==2.8.2
-mnemonic==0.20
-base58==2.1.1
-cryptography==41.0.7
-EOL
-
-$BOT_DIR/venv/bin/pip install -r requirements.txt
-
-# Create enhanced configuration file
-tee $BOT_DIR/config.py > /dev/null <<EOF
-# Bot Configuration
-BOT_TOKEN = "${BOT_TOKEN}"
-WEB_APP_URL = "https://${DOMAIN_NAME}"
-
-# Firebase Configuration
-FIREBASE_PROJECT_ID = "neonroll-26174"
-
-# Game Configuration
-WELCOME_BONUS = 20.0
-MIN_BET = 1.0
-MAX_BET = 1000.0
-
-# Master seed phrase for wallet generation
-MASTER_SEED_PHRASE = "nothing ridge argue engine loan boat dry radar wink universe remind fence"
-
-# Crypto Configuration with proper wallet generation
-CRYPTO_WALLETS = {
-    'ton': 'UQBvI0aFLnw2QbZgjMPCLRdtRHxhUyinQudg6sdiohIwg5jL',
-    'usdt': 'TXYZabcd1234567890ABCDEF1234567890abcdef',
-    'btc': 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'
+    
+    # Enable site
+    ln -sf "$NGINX_CONF" /etc/nginx/sites-enabled/
+    rm -f /etc/nginx/sites-enabled/default
+    
+    # Test and reload Nginx
+    nginx -t && systemctl reload nginx
+    systemctl enable nginx
+    
+    print_success "Nginx configured"
 }
 
-# Supported Cryptocurrencies with enhanced configuration
-SUPPORTED_CRYPTOS = {
-    'ton': {
-        'name': 'TON',
-        'full_name': 'Toncoin',
-        'network': 'ton',
-        'network_name': 'TON Network',
-        'decimals': 9,
-        'min_deposit': 1,
-        'min_withdraw': 27,
-        'rate_to_ec': 2.45,
-        'icon': 'https://s2.coinmarketcap.com/static/img/coins/64x64/11419.png',
-        'address_prefix': 'UQ',
-        'confirmation_blocks': 1
-    },
-    'usdt': {
-        'name': 'USDT TRC20',
-        'full_name': 'Tether USD (TRC20)',
-        'network': 'tron',
-        'network_name': 'TRON Network',
-        'decimals': 6,
-        'min_deposit': 5,
-        'min_withdraw': 45,
-        'rate_to_ec': 1.00,
-        'icon': 'https://s2.coinmarketcap.com/static/img/coins/64x64/825.png',
-        'address_prefix': 'T',
-        'confirmation_blocks': 1
-    },
-    'btc': {
-        'name': 'Bitcoin',
-        'full_name': 'Bitcoin',
-        'network': 'bitcoin',
-        'network_name': 'Bitcoin Network',
-        'decimals': 8,
-        'min_deposit': 0.001,
-        'min_withdraw': 100,
-        'rate_to_ec': 45000,
-        'icon': 'https://s2.coinmarketcap.com/static/img/coins/64x64/1.png',
-        'address_prefix': 'bc1',
-        'confirmation_blocks': 6
-    },
-    'eth': {
-        'name': 'Ethereum',
-        'full_name': 'Ethereum',
-        'network': 'ethereum',
-        'network_name': 'Ethereum Network',
-        'decimals': 18,
-        'min_deposit': 0.01,
-        'min_withdraw': 85,
-        'rate_to_ec': 2500.00,
-        'icon': 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
-        'address_prefix': '0x',
-        'confirmation_blocks': 12
-    }
-}
-
-# Wallet Generation Settings with enhanced derivation paths
-DERIVATION_PATHS = {
-    'bitcoin': "m/44'/0'/0'/0/0",
-    'ethereum': "m/44'/60'/0'/0/0",
-    'tron': "m/44'/195'/0'/0/0",
-    'ton': "m/44'/607'/0'/0/0",
-    'bsc': "m/44'/60'/0'/0/0"
-}
-
-# Referral System Settings
-REFERRAL_LEVELS = {
-    'level_1': {
-        'percentage': 0.05,  # 5%
-        'name': 'Direct Referral'
-    },
-    'level_2': {
-        'percentage': 0.01,  # 1%
-        'name': 'Second Level'
-    },
-    'level_3': {
-        'percentage': 0.01,  # 1%
-        'name': 'Third Level'
-    }
-}
-
-# Bot Settings
-BOT_DESCRIPTION = "🎰 Neon Roll - The Ultimate Crypto Casino Experience! 🎰"
-BOT_SHORT_DESCRIPTION = "Win big in our neon-powered casino!"
-BOT_COMMANDS = [
-    {"command": "start", "description": "🚀 Start playing Neon Roll"},
-    {"command": "stats", "description": "📊 View your game statistics"},
-    {"command": "help", "description": "❓ Get help and game rules"},
-    {"command": "deposit", "description": "💰 Deposit cryptocurrency"},
-    {"command": "withdraw", "description": "💸 Withdraw your winnings"},
-    {"command": "referral", "description": "👥 Get your referral link"}
-]
+# Configure SSL with Let's Encrypt
+configure_ssl() {
+    print_header "Configuring SSL certificate..."
+    
+    # Get SSL certificate
+    certbot --nginx -d agrobmin.com.ua -d www.agrobmin.com.ua --non-interactive --agree-tos --email admin@agrobmin.com.ua
+    
+    # Setup automatic renewal
+    cat > /etc/cron.d/certbot << EOF
+0 12 * * * root certbot renew --quiet --deploy-hook "systemctl reload nginx"
 EOF
+    
+    print_success "SSL certificate configured"
+}
 
-# Copy bot files
-cp ./bot.py $BOT_DIR/bot.py
-cp ./crypto_utils.py $BOT_DIR/crypto_utils.py
-cp ./neonrollfirebase-service-account.json $BOT_DIR/neonrollfirebase-service-account.json
-
-echo "--- [5/7] Creating system service for bot ---"
-sudo tee /etc/systemd/system/neon-roll-bot.service > /dev/null <<EOF
+# Create systemd service
+create_systemd_service() {
+    print_header "Creating systemd service..."
+    
+    cat > "$SYSTEMD_SERVICE" << EOF
 [Unit]
-Description=Neon Roll Telegram Bot
-After=network.target
+Description=Neon Casino Bot
+After=network.target redis.service postgresql.service
+Wants=network.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
-User=$CURRENT_USER
-Group=$CURRENT_USER
-WorkingDirectory=$BOT_DIR
-ExecStart=$BOT_DIR/venv/bin/python bot.py
+User=$USER
+Group=$GROUP
+WorkingDirectory=$APP_DIR
+Environment=PATH=$VENV_DIR/bin
+Environment=PYTHONPATH=$APP_DIR
+ExecStart=$VENV_DIR/bin/python bot.py
+ExecReload=/bin/kill -HUP \$MAINPID
+ExecStop=/bin/kill -TERM \$MAINPID
 Restart=always
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=neon-casino
 
-# Environment variables
-Environment=PYTHONPATH=$BOT_DIR
-Environment=PYTHONUNBUFFERED=1
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=$APP_DIR $LOG_DIR
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
 
 [Install]
 WantedBy=multi-user.target
 EOF
+    
+    # Enable and start service
+    systemctl daemon-reload
+    systemctl enable "$APP_NAME"
+    
+    print_success "Systemd service created"
+}
 
-# Reload systemd and start service
-sudo systemctl daemon-reload
-sudo systemctl enable neon-roll-bot
-sudo systemctl start neon-roll-bot
+# Configure firewall
+configure_firewall() {
+    print_header "Configuring firewall..."
+    
+    # UFW configuration
+    ufw --force reset
+    ufw default deny incoming
+    ufw default allow outgoing
+    
+    # Allow SSH
+    ufw allow ssh
+    
+    # Allow HTTP/HTTPS
+    ufw allow 'Nginx Full'
+    
+    # Allow specific ports if needed
+    ufw allow 8080/tcp  # Bot webhook
+    
+    # Enable UFW
+    ufw --force enable
+    
+    print_success "Firewall configured"
+}
 
-echo "--- [6/7] Setting up log rotation ---"
-sudo tee /etc/logrotate.d/neon-roll-bot > /dev/null <<EOF
-/var/log/neon-roll-bot.log {
+# Configure monitoring
+configure_monitoring() {
+    print_header "Configuring monitoring..."
+    
+    # Log rotation
+    cat > /etc/logrotate.d/neon-casino << EOF
+$LOG_DIR/*.log {
     daily
     missingok
     rotate 30
     compress
     delaycompress
     notifempty
-    create 644 $CURRENT_USER $CURRENT_USER
+    create 644 $USER $GROUP
     postrotate
-        systemctl reload neon-roll-bot > /dev/null 2>&1 || true
+        systemctl reload $APP_NAME
     endscript
 }
 EOF
+    
+    # Create monitoring script
+    cat > /usr/local/bin/neon-casino-monitor << 'EOF'
+#!/bin/bash
+# Neon Casino Monitoring Script
 
-echo "--- [7/7] Final status check ---"
-sudo systemctl status nginx --no-pager -n 0
-sudo systemctl status neon-roll-bot --no-pager -n 0
+LOG_FILE="/var/log/neon-casino/monitor.log"
+SERVICE_NAME="neon-casino"
 
-echo "========================================================"
-echo "🎉 Enhanced Installation Complete! 🎉"
-echo ""
-echo "✅ Your website is available at: https://${DOMAIN_NAME}"
-echo "✅ Telegram bot is running and ready"
-echo "✅ Firebase integration configured"
-echo "✅ Enhanced crypto wallet system active"
-echo "✅ Multi-level referral system enabled"
-echo "✅ Advanced task system implemented"
-echo "✅ All user data persists in cloud database"
-echo ""
-echo "🆕 New Features:"
-echo "• Improved horizontal cup design"
-echo "• Enhanced crypto integration with 12+ currencies"
-echo "• Fixed referral system with proper tracking"
-echo "• Advanced task system with difficulty levels"
-echo "• Better UI/UX with performance optimizations"
-echo "• Proper wallet generation from seed phrases"
-echo "• Enhanced security and error handling"
-echo ""
-echo "📝 Important Notes:"
-echo "1. Bot token is already configured"
-echo "2. Crypto wallets are generated securely"
-echo "3. All transactions are logged and encrypted"
-echo "4. Database automatically backs up user data"
-echo ""
-echo "🔧 Bot Management Commands:"
-echo "   sudo systemctl start neon-roll-bot    # Start bot"
-echo "   sudo systemctl stop neon-roll-bot     # Stop bot"
-echo "   sudo systemctl restart neon-roll-bot  # Restart bot"
-echo "   sudo systemctl status neon-roll-bot   # Check status"
-echo ""
-echo "📊 View Bot Logs:"
-echo "   sudo journalctl -u neon-roll-bot -f"
-echo ""
-echo "🔐 Security Features:"
-echo "• SSL/TLS encryption enabled"
-echo "• Secure headers configured"
-echo "• Enhanced bot security"
-echo "• Encrypted data transmission"
-echo ""
-echo "🎰 Your Neon Roll Casino is now live and fully operational!"
-echo "========================================================"
+# Check if service is running
+if ! systemctl is-active --quiet $SERVICE_NAME; then
+    echo "$(date): Service $SERVICE_NAME is not running. Attempting to restart..." >> $LOG_FILE
+    systemctl restart $SERVICE_NAME
+    sleep 10
+    
+    if systemctl is-active --quiet $SERVICE_NAME; then
+        echo "$(date): Service $SERVICE_NAME restarted successfully" >> $LOG_FILE
+    else
+        echo "$(date): Failed to restart service $SERVICE_NAME" >> $LOG_FILE
+    fi
+fi
+
+# Check memory usage
+MEMORY_USAGE=$(ps -o pid,ppid,cmd,%mem,%cpu --sort=-%mem -C python3.11 | grep bot.py | awk '{print $4}')
+if [ ! -z "$MEMORY_USAGE" ] && (( $(echo "$MEMORY_USAGE > 80" | bc -l) )); then
+    echo "$(date): High memory usage detected: $MEMORY_USAGE%" >> $LOG_FILE
+fi
+
+# Check disk space
+DISK_USAGE=$(df /opt/neon-casino | tail -1 | awk '{print $5}' | sed 's/%//')
+if [ $DISK_USAGE -gt 85 ]; then
+    echo "$(date): High disk usage detected: $DISK_USAGE%" >> $LOG_FILE
+fi
+EOF
+    
+    chmod +x /usr/local/bin/neon-casino-monitor
+    
+    # Add to crontab
+    cat > /etc/cron.d/neon-casino-monitor << EOF
+*/5 * * * * root /usr/local/bin/neon-casino-monitor
+EOF
+    
+    print_success "Monitoring configured"
+}
+
+# Backup configuration
+configure_backup() {
+    print_header "Configuring backup system..."
+    
+    # Create backup script
+    cat > /usr/local/bin/neon-casino-backup << 'EOF'
+#!/bin/bash
+# Neon Casino Backup Script
+
+BACKUP_DIR="/opt/neon-casino-backups"
+APP_DIR="/opt/neon-casino"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="$BACKUP_DIR/neon-casino-$DATE.tar.gz"
+
+# Create backup
+tar -czf "$BACKUP_FILE" \
+    --exclude="$APP_DIR/venv" \
+    --exclude="$APP_DIR/__pycache__" \
+    --exclude="$APP_DIR/*.pyc" \
+    --exclude="$APP_DIR/neon_casino.log" \
+    "$APP_DIR"
+
+# Keep only last 7 days of backups
+find "$BACKUP_DIR" -name "neon-casino-*.tar.gz" -mtime +7 -delete
+
+# Log backup
+echo "$(date): Backup created: $BACKUP_FILE" >> /var/log/neon-casino/backup.log
+EOF
+    
+    chmod +x /usr/local/bin/neon-casino-backup
+    
+    # Add to crontab (daily backup at 2 AM)
+    cat > /etc/cron.d/neon-casino-backup << EOF
+0 2 * * * root /usr/local/bin/neon-casino-backup
+EOF
+    
+    print_success "Backup system configured"
+}
+
+# Security hardening
+configure_security() {
+    print_header "Applying security hardening..."
+    
+    # Fail2ban configuration
+    cat > /etc/fail2ban/jail.local << EOF
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+ignoreip = 127.0.0.1/8 ::1
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+
+[nginx-http-auth]
+enabled = true
+filter = nginx-http-auth
+port = http,https
+logpath = /var/log/nginx/error.log
+
+[nginx-limit-req]
+enabled = true
+filter = nginx-limit-req
+port = http,https
+logpath = /var/log/nginx/error.log
+maxretry = 10
+EOF
+    
+    # Restart fail2ban
+    systemctl restart fail2ban
+    systemctl enable fail2ban
+    
+    # Secure shared memory
+    echo "tmpfs /run/shm tmpfs defaults,noexec,nosuid 0 0" >> /etc/fstab
+    
+    print_success "Security hardening applied"
+}
+
+# Performance optimization
+optimize_performance() {
+    print_header "Optimizing performance..."
+    
+    # Kernel parameters
+    cat > /etc/sysctl.d/99-neon-casino.conf << EOF
+# Network optimizations
+net.core.rmem_max = 134217728
+net.core.wmem_max = 134217728
+net.ipv4.tcp_rmem = 4096 87380 134217728
+net.ipv4.tcp_wmem = 4096 65536 134217728
+net.ipv4.tcp_window_scaling = 1
+net.core.netdev_max_backlog = 5000
+net.ipv4.tcp_congestion_control = bbr
+
+# File system optimizations
+vm.dirty_ratio = 15
+vm.dirty_background_ratio = 5
+vm.swappiness = 10
+fs.file-max = 65535
+EOF
+    
+    sysctl -p /etc/sysctl.d/99-neon-casino.conf
+    
+    print_success "Performance optimized"
+}
+
+# Start the application
+start_application() {
+    print_header "Starting Neon Casino..."
+    
+    # Start and enable services
+    systemctl start "$APP_NAME"
+    systemctl enable "$APP_NAME"
+    
+    # Wait for startup
+    sleep 5
+    
+    # Check status
+    if systemctl is-active --quiet "$APP_NAME"; then
+        print_success "Neon Casino started successfully!"
+        
+        # Display status
+        echo -e "\n${GREEN}🎰 NEON CASINO DEPLOYMENT COMPLETE! 🎰${NC}"
+        echo -e "${WHITE}════════════════════════════════════════════════════════════════${NC}"
+        echo -e "${CYAN}📱 Bot URL:${NC} https://t.me/neonroll_casino_bot"
+        echo -e "${CYAN}🌐 Web App:${NC} https://agrobmin.com.ua"
+        echo -e "${CYAN}📊 Status:${NC} systemctl status $APP_NAME"
+        echo -e "${CYAN}📋 Logs:${NC} journalctl -u $APP_NAME -f"
+        echo -e "${CYAN}🔍 Monitor:${NC} tail -f $LOG_DIR/neon_casino.log"
+        echo -e "${WHITE}════════════════════════════════════════════════════════════════${NC}"
+        echo -e "${GREEN}✅ All systems operational!${NC}"
+        echo -e "${YELLOW}🚀 Ready to accept players!${NC}"
+        
+    else
+        print_error "Failed to start Neon Casino"
+        echo "Check logs: journalctl -u $APP_NAME -n 50"
+        exit 1
+    fi
+}
+
+# Main execution
+main() {
+    print_header "Starting Neon Casino deployment..."
+    
+    check_root
+    install_system_dependencies
+    setup_user_and_directories
+    install_python_dependencies
+    configure_firebase
+    configure_redis
+    configure_postgresql
+    configure_nginx
+    configure_ssl
+    create_systemd_service
+    configure_firewall
+    configure_monitoring
+    configure_backup
+    configure_security
+    optimize_performance
+    start_application
+    
+    print_success "Deployment completed successfully!"
+}
+
+# Execute main function
+main "$@"
