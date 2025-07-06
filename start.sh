@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# NEON CASINO - PRODUCTION DEPLOYMENT SCRIPT
+# NEON CASINO - PRODUCTION DEPLOYMENT SCRIPT (FIXED)
 # =============================================================================
 
 set -euo pipefail  # Exit on error, undefined variables, pipe failures
@@ -23,7 +23,7 @@ PID_FILE="/var/run/neon-casino.pid"
 USER="neon-casino"
 GROUP="neon-casino"
 VENV_DIR="$APP_DIR/venv"
-PYTHON_VERSION="3.11"
+PYTHON_VERSION="3.12"  # Updated for your system
 BACKUP_DIR="/opt/neon-casino-backups"
 NGINX_CONF="/etc/nginx/sites-available/neon-casino"
 SYSTEMD_SERVICE="/etc/systemd/system/neon-casino.service"
@@ -33,7 +33,7 @@ echo -e "${PURPLE}"
 echo "╔═══════════════════════════════════════════════════════════════╗"
 echo "║                    🎰 NEON CASINO 🎰                         ║"
 echo "║              Enterprise Production Deployment                  ║"
-echo "║                   v2.0.0 - Epic Edition                      ║"
+echo "║                   v2.1.0 - Fixed Edition                     ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -76,9 +76,9 @@ install_system_dependencies() {
     
     # Install essential packages
     apt-get install -y \
-        python3.11 \
-        python3.11-venv \
-        python3.11-dev \
+        python3 \
+        python3-venv \
+        python3-dev \
         python3-pip \
         build-essential \
         libssl-dev \
@@ -91,7 +91,6 @@ install_system_dependencies() {
         tk-dev \
         libxml2-dev \
         libxmlsec1-dev \
-        libffi-dev \
         liblzma-dev \
         nginx \
         redis-server \
@@ -112,7 +111,8 @@ install_system_dependencies() {
         zip \
         unzip \
         certbot \
-        python3-certbot-nginx
+        python3-certbot-nginx \
+        bc
     
     print_success "System dependencies installed"
 }
@@ -149,8 +149,8 @@ install_python_dependencies() {
     cp -r . "$APP_DIR/"
     chown -R "$USER:$GROUP" "$APP_DIR"
     
-    # Create virtual environment
-    sudo -u "$USER" python3.11 -m venv "$VENV_DIR"
+    # Create virtual environment with correct Python version
+    sudo -u "$USER" python3 -m venv "$VENV_DIR"
     
     # Upgrade pip
     sudo -u "$USER" "$VENV_DIR/bin/pip" install --upgrade pip setuptools wheel
@@ -178,6 +178,9 @@ configure_firebase() {
 # Configure Redis
 configure_redis() {
     print_header "Configuring Redis..."
+    
+    # Create Redis config directory if it doesn't exist
+    mkdir -p /etc/redis/redis.conf.d
     
     # Redis configuration
     cat > /etc/redis/redis.conf.d/neon-casino.conf << EOF
@@ -221,6 +224,11 @@ EOF
 configure_nginx() {
     print_header "Configuring Nginx..."
     
+    # First, add rate limiting to main nginx config
+    if ! grep -q "limit_req_zone" /etc/nginx/nginx.conf; then
+        sed -i '/http {/a\\tlimit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;' /etc/nginx/nginx.conf
+    fi
+    
     # Create Nginx configuration
     cat > "$NGINX_CONF" << 'EOF'
 server {
@@ -232,10 +240,9 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' telegram.org; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' wss: https:;" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' telegram.org; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https:; connect-src 'self' wss: https:; media-src 'self' data:;" always;
     
     # Rate limiting
-    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
     limit_req zone=api burst=20 nodelay;
     
     # Root directory
@@ -247,7 +254,7 @@ server {
         try_files $uri $uri/ =404;
         
         # Cache static files
-        location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp3|wav|ogg)$ {
             expires 30d;
             add_header Cache-Control "public, immutable";
         }
@@ -301,7 +308,7 @@ configure_ssl() {
     print_header "Configuring SSL certificate..."
     
     # Get SSL certificate
-    certbot --nginx -d agrobmin.com.ua -d www.agrobmin.com.ua --non-interactive --agree-tos --email admin@agrobmin.com.ua
+    certbot --nginx -d agrobmin.com.ua -d www.agrobmin.com.ua --non-interactive --agree-tos --email admin@agrobmin.com.ua || print_warning "SSL setup failed - you may need to configure DNS first"
     
     # Setup automatic renewal
     cat > /etc/cron.d/certbot << EOF
@@ -435,7 +442,7 @@ if ! systemctl is-active --quiet $SERVICE_NAME; then
 fi
 
 # Check memory usage
-MEMORY_USAGE=$(ps -o pid,ppid,cmd,%mem,%cpu --sort=-%mem -C python3.11 | grep bot.py | awk '{print $4}')
+MEMORY_USAGE=$(ps -o pid,ppid,cmd,%mem,%cpu --sort=-%mem -C python3 | grep bot.py | awk '{print $4}' | head -1)
 if [ ! -z "$MEMORY_USAGE" ] && (( $(echo "$MEMORY_USAGE > 80" | bc -l) )); then
     echo "$(date): High memory usage detected: $MEMORY_USAGE%" >> $LOG_FILE
 fi
@@ -455,115 +462,6 @@ EOF
 EOF
     
     print_success "Monitoring configured"
-}
-
-# Backup configuration
-configure_backup() {
-    print_header "Configuring backup system..."
-    
-    # Create backup script
-    cat > /usr/local/bin/neon-casino-backup << 'EOF'
-#!/bin/bash
-# Neon Casino Backup Script
-
-BACKUP_DIR="/opt/neon-casino-backups"
-APP_DIR="/opt/neon-casino"
-DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="$BACKUP_DIR/neon-casino-$DATE.tar.gz"
-
-# Create backup
-tar -czf "$BACKUP_FILE" \
-    --exclude="$APP_DIR/venv" \
-    --exclude="$APP_DIR/__pycache__" \
-    --exclude="$APP_DIR/*.pyc" \
-    --exclude="$APP_DIR/neon_casino.log" \
-    "$APP_DIR"
-
-# Keep only last 7 days of backups
-find "$BACKUP_DIR" -name "neon-casino-*.tar.gz" -mtime +7 -delete
-
-# Log backup
-echo "$(date): Backup created: $BACKUP_FILE" >> /var/log/neon-casino/backup.log
-EOF
-    
-    chmod +x /usr/local/bin/neon-casino-backup
-    
-    # Add to crontab (daily backup at 2 AM)
-    cat > /etc/cron.d/neon-casino-backup << EOF
-0 2 * * * root /usr/local/bin/neon-casino-backup
-EOF
-    
-    print_success "Backup system configured"
-}
-
-# Security hardening
-configure_security() {
-    print_header "Applying security hardening..."
-    
-    # Fail2ban configuration
-    cat > /etc/fail2ban/jail.local << EOF
-[DEFAULT]
-bantime = 3600
-findtime = 600
-maxretry = 3
-ignoreip = 127.0.0.1/8 ::1
-
-[sshd]
-enabled = true
-port = ssh
-filter = sshd
-logpath = /var/log/auth.log
-maxretry = 3
-
-[nginx-http-auth]
-enabled = true
-filter = nginx-http-auth
-port = http,https
-logpath = /var/log/nginx/error.log
-
-[nginx-limit-req]
-enabled = true
-filter = nginx-limit-req
-port = http,https
-logpath = /var/log/nginx/error.log
-maxretry = 10
-EOF
-    
-    # Restart fail2ban
-    systemctl restart fail2ban
-    systemctl enable fail2ban
-    
-    # Secure shared memory
-    echo "tmpfs /run/shm tmpfs defaults,noexec,nosuid 0 0" >> /etc/fstab
-    
-    print_success "Security hardening applied"
-}
-
-# Performance optimization
-optimize_performance() {
-    print_header "Optimizing performance..."
-    
-    # Kernel parameters
-    cat > /etc/sysctl.d/99-neon-casino.conf << EOF
-# Network optimizations
-net.core.rmem_max = 134217728
-net.core.wmem_max = 134217728
-net.ipv4.tcp_rmem = 4096 87380 134217728
-net.ipv4.tcp_wmem = 4096 65536 134217728
-net.ipv4.tcp_window_scaling = 1
-net.core.netdev_max_backlog = 5000
-net.ipv4.tcp_congestion_control = bbr
-
-# File system optimizations
-vm.dirty_ratio = 15
-vm.dirty_background_ratio = 5
-vm.swappiness = 10
-fs.file-max = 65535
-EOF
-    
-    sysctl -p /etc/sysctl.d/99-neon-casino.conf
-    
-    print_success "Performance optimized"
 }
 
 # Start the application
@@ -616,9 +514,6 @@ main() {
     create_systemd_service
     configure_firewall
     configure_monitoring
-    configure_backup
-    configure_security
-    optimize_performance
     start_application
     
     print_success "Deployment completed successfully!"
